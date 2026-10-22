@@ -34,6 +34,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,ico,woff2}'],
+        // Große Datenpakete (Kataloge, Lichtkarte, Bahndaten) nicht vorab laden, sondern beim ersten Öffnen
+        globIgnores: ['data/**'],
         // Push-Empfang (public/push-sw.js) in den generierten Service Worker einbinden
         importScripts: ['push-sw.js'],
         runtimeCaching: [
@@ -41,6 +43,16 @@ export default defineConfig({
             urlPattern: /^https:\/\/api\.open-meteo\.com\/.*/,
             handler: 'NetworkFirst',
             options: { cacheName: 'weather', expiration: { maxEntries: 20, maxAgeSeconds: 6 * 3600 } },
+          },
+          {
+            urlPattern: ({ url }) => url.origin === self.location.origin && url.pathname.includes('/data/'),
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'orbitus-data', expiration: { maxEntries: 20 } },
+          },
+          {
+            urlPattern: /^https:\/\/images-assets\.nasa\.gov\/.*/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'nasa-images', expiration: { maxEntries: 120, maxAgeSeconds: 60 * 86400 } },
           },
           {
             urlPattern: /^https:\/\/geocoding-api\.open-meteo\.com\/.*/,

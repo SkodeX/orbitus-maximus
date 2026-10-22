@@ -39,6 +39,13 @@ Auf dem iPhone: Seite in Safari öffnen → „Teilen“ → „Zum Home-Bildsch
 - **Beobachtungstagebuch** mit Zeit, Ort, Objekten, Bedingungen, Ausrüstung, Notizen und Fotos – funktioniert offline und synchronisiert sich nach dem Anmelden; direkt aus Sternkarte und Heute-Seite eintragen
 - **Benachrichtigungen** (Web-Push): ISS-Überflüge, Polarlicht-Alarm, klare Nacht und Meteorschauer-Maxima für deinen Ort – auf dem iPhone nur in der installierten App
 
+**Phase 6 „Mehr von allem“**
+
+- **Beobachten** (`#/beobachten`): Astro-Wetter mit Luftruhe, Durchsicht und Taugefahr · Lichtverschmutzung mit Bortle-Klasse und dunkleren Orten in der Nähe · AR-Himmel mit der Handykamera · Beobachtungslisten zum Abhaken (Messier, Caldwell, Fernglas, bloßes Auge, Doppelsterne) · Okular- und Fernglas-Rechner mit Gesichtsfeld-Kreis in der Sternkarte · 3D-Mondatlas mit Lichtgrenze, Libration und Landeplätzen · Jupitermonde mit Schattendurchgängen, Saturnmonde und Ringneigung · Finsternisse mit Zentrallinie auf der Weltkarte und Simulator · helle Kometen und Asteroiden-Vorbeiflüge · Himmelskalender mit Export in den Handy-Kalender (.ics)
+- **Live**: Livestream-Links bei den Raketenstarts („Jetzt live“), Deep Space Network live, Raumsonden-Tracker mit Karte und Signallaufzeit, alle aktiven Satelliten als 3D-Wolke um die Erde
+- **3D & Wissen**: Raumsonden-Bahnen, Asteroidengürtel, Trojaner und Kuipergürtel im 3D-Sonnensystem · Nachbarsterne bis 50 Lichtjahre in 3D · Exoplaneten-Katalog · Sternbild-Trainer (Karteikasten) · Lernpfade · Sternbild-Mythen aus aller Welt · Bildergalerie von Hubble, Webb & Co. · „Heute in der Raumfahrtgeschichte“
+- **Tagebuch**: Statistik, Export als CSV, Druckansicht (PDF) und Teilen als Bild
+
 ## Entwickeln
 
 ```bash
@@ -49,7 +56,11 @@ npm run preview    # Build lokal ansehen
 npm run sky-data   # Sterndaten aus d3-celestial neu erzeugen (src/data/)
 npm run icons      # App-Icons aus public/logo.svg erzeugen
 node scripts/build-textures.mjs <Ordner>   # NASA-Texturen verkleinern (nach public/textures/)
+npm run data       # Kataloge (Exoplaneten, Kleinkörper, Kometen, Nachbarsterne) und Bahnen (Sonden, Saturnmonde) neu laden
+node scripts/build-lightpollution.mjs <World_Atlas_2015.zip>   # Lichtkarte aus dem Falchi-Atlas erzeugen
 ```
+
+`npm run data` holt die Daten von NASA/JPL, CDS und dem NASA Exoplanet Archive nach `public/data/`. Fällt eine Quelle aus, bleiben die alten Dateien erhalten. GitHub Actions führt das vor jedem Build aus und baut die App zusätzlich jeden Montag neu.
 
 ### Backend (Supabase)
 
@@ -77,6 +88,9 @@ GPS und Lagesensor funktionieren auf dem Handy nur über HTTPS, also in der Live
 | `src/learn/` | Lexikon, Zeitstrahl, Quiz, Abzeichen und Lernfortschritt |
 | `src/lib/live/` | Live-Daten: ISS-Bahn, Starts, News, Weltraumwetter |
 | `src/lib/cloud/` | Konto, Sync, Tagebuch und Push (Supabase) |
+| `src/lib/observe/` | Beobachten: Optik, Finsternisse, Jupiter- und Saturnmonde, Mondgeometrie, Ereignisse, Listen, Lichtverschmutzung |
+| `src/lib/catalogs.ts` | Kataloge und Bahnrechnung für Kleinkörper und Kometen |
+| `public/data/` | Erzeugte Datenpakete (werden erst bei Bedarf geladen) |
 | `supabase/` | Datenbank-Migrationen und Edge Function für Benachrichtigungen |
 | `src/i18n/` | Texte Deutsch/Englisch |
 | `src/data/` | Erzeugte Himmelsdaten |
@@ -98,4 +112,9 @@ Lizenzen und Hinweise im Detail: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md
 - [Natural Earth / world-atlas](https://github.com/topojson/world-atlas) – Landmassen der Weltkarte
 - [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources) – Oberflächenkarten von Erde, Venus (Magellan-Radar), Mars, Jupiter, Saturn, Neptun, Pluto, Io, Europa und Titan (gemeinfrei)
 - [three.js](https://threejs.org) – 3D-Darstellung (MIT)
+- [Falchi et al. 2016, World Atlas of Artificial Night Sky Brightness](https://doi.org/10.5880/GFZ.1.4.2016.001) – Lichtverschmutzung (CC BY-NC 4.0, deshalb nur nicht-kommerziell)
+- [NASA/JPL Horizons und Small-Body Database](https://ssd.jpl.nasa.gov) – Sondenbahnen, Saturnmonde, Asteroiden und Kometen; [NASA NeoWs](https://api.nasa.gov) – Vorbeiflüge
+- [NASA Exoplanet Archive](https://exoplanetarchive.ipac.caltech.edu) – Exoplaneten; [CDS SIMBAD/VizieR](https://cds.unistra.fr) und ESA Hipparcos – Nachbarsterne und Koordinaten
+- [IAU/USGS Gazetteer](https://planetarynames.wr.usgs.gov), [LROC](https://www.lroc.asu.edu) und [NASA SVS](https://svs.gsfc.nasa.gov/4720) – Mondatlas
+- [NASA Image and Video Library](https://images.nasa.gov) – Bildergalerie; [NASA DSN Now](https://eyes.nasa.gov/apps/dsn-now/) – Deep Space Network live
 - [Supabase](https://supabase.com) – Konto, Datenbank, Foto-Speicher und Edge Functions; [web-push](https://github.com/web-push-libs/web-push) – Versand der Benachrichtigungen (MPL-2.0)

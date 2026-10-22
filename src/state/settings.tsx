@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Place } from '../lib/astro';
+import { DEFAULT_OPTICS, type Optics } from '../lib/observe/optics';
 
 export type Lang = 'de' | 'en';
 
@@ -20,12 +21,14 @@ export interface Settings {
   recentPlaces: Place[];
   redMode: boolean;
   layers: SkyLayers;
+  /** Teleskope, Ferngläser und Okulare */
+  optics: Optics;
   /** Zeitpunkt der letzten Änderung (für den Abgleich mit dem Konto) */
   updatedAt: number;
 }
 
 /** Diese Einstellungen werden mit dem Konto synchronisiert (der Rotlicht-Modus bleibt pro Gerät) */
-export const SYNCED_KEYS = ['lang', 'place', 'recentPlaces', 'layers'] as const;
+export const SYNCED_KEYS = ['lang', 'place', 'recentPlaces', 'layers', 'optics'] as const;
 export type SyncedSettings = Pick<Settings, (typeof SYNCED_KEYS)[number] | 'updatedAt'>;
 
 const KEY = 'orbitus.settings.v1';
@@ -43,7 +46,7 @@ export const DEFAULT_LAYERS: SkyLayers = {
 
 function load(): Settings {
   const lang: Lang = navigator.language?.toLowerCase().startsWith('de') ? 'de' : 'en';
-  const base: Settings = { lang, place: null, recentPlaces: [], redMode: false, layers: DEFAULT_LAYERS, updatedAt: 0 };
+  const base: Settings = { lang, place: null, recentPlaces: [], redMode: false, layers: DEFAULT_LAYERS, optics: DEFAULT_OPTICS, updatedAt: 0 };
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
@@ -107,7 +110,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   const applyRemote = useCallback(
     (remote: Partial<SyncedSettings>) =>
-      setSettings((s) => ({ ...s, ...remote, layers: { ...DEFAULT_LAYERS, ...remote.layers }, updatedAt: remote.updatedAt ?? s.updatedAt })),
+      setSettings((s) => ({
+        ...s,
+        ...remote,
+        layers: { ...DEFAULT_LAYERS, ...remote.layers },
+        optics: remote.optics ?? s.optics,
+        updatedAt: remote.updatedAt ?? s.updatedAt,
+      })),
     [],
   );
 

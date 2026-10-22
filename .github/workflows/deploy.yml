@@ -4,6 +4,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Einmal pro Woche neu bauen, damit Kometen, Exoplaneten und Sondenbahnen aktuell bleiben
+  schedule:
+    - cron: '17 3 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -25,6 +28,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Daten von NASA/JPL auffrischen; bei Netzproblemen bleiben die Dateien aus dem Repo
+      - run: npm run data
+        timeout-minutes: 10
+        continue-on-error: true
       - run: npm run build
       - uses: actions/upload-pages-artifact@v5
         with:

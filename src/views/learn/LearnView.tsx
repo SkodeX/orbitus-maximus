@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Award, BookOpen, Clock3, Ruler, Sparkles, Trophy } from 'lucide-react';
+import { Award, BookOpen, Brain, Clock3, Feather, Globe, Images, Route, Ruler, Sparkles, Trophy } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import { useProgress } from '../../learn/progress';
 import { BADGES } from '../../learn/badges';
@@ -10,6 +10,13 @@ import { Lexicon, ArticlePage } from './Lexicon';
 import { Timeline } from './Timeline';
 import { Sizes } from './Sizes';
 import { Quiz } from './Quiz';
+import { Trainer } from './Trainer';
+import { Myths } from './Myths';
+import { Gallery } from './Gallery';
+import { Paths } from './Paths';
+import { Exoplanets } from './Exoplanets';
+import { PATHS } from '../../learn/paths';
+import { GALLERY } from '../../learn/gallery';
 import type { ArticleCategory } from '../../learn/types';
 
 export default function LearnView({ path, query }: { path: string; query: URLSearchParams }) {
@@ -17,9 +24,11 @@ export default function LearnView({ path, query }: { path: string; query: URLSea
   const section = parts[1] ?? '';
   const sub = parts[2];
 
+  // Beim Blättern in der Galerie nicht nach oben springen
+  const scrollKey = section === 'galerie' ? section : path;
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [path]);
+  }, [scrollKey]);
 
   return (
     <>
@@ -27,7 +36,12 @@ export default function LearnView({ path, query }: { path: string; query: URLSea
       {section === 'zeitstrahl' && <Timeline />}
       {section === 'groessen' && <Sizes />}
       {section === 'quiz' && <Quiz scope={(query.get('cat') as ArticleCategory | null) ?? null} />}
-      {!['lexikon', 'zeitstrahl', 'groessen', 'quiz'].includes(section) && <LearnHub />}
+      {section === 'trainer' && <Trainer />}
+      {section === 'mythen' && <Myths con={sub ?? null} />}
+      {section === 'galerie' && <Gallery id={sub ?? null} />}
+      {section === 'pfade' && <Paths id={sub ?? null} />}
+      {section === 'exoplaneten' && <Exoplanets />}
+      {!['lexikon', 'zeitstrahl', 'groessen', 'quiz', 'trainer', 'mythen', 'galerie', 'pfade', 'exoplaneten'].includes(section) && <LearnHub />}
       <BadgeToast />
     </>
   );
@@ -113,6 +127,39 @@ function LearnHub() {
           {progress.quizzes.length > 0 && (
             <small className="muted">{t('learn.quizStats', { n: progress.quizzes.length, best: Math.round(best * 100) })}</small>
           )}
+        </a>
+        <a className="card learn-card" href="#/wissen/pfade">
+          <Route size={26} />
+          <h3>{t('paths.title')}</h3>
+          <p className="muted">{t('learn.pathsText', { n: PATHS.length })}</p>
+        </a>
+        <a className="card learn-card" href="#/wissen/trainer">
+          <Brain size={26} />
+          <h3>{t('trainer.title')}</h3>
+          <p className="muted">{t('learn.trainerText')}</p>
+          {Object.keys(progress.cards).length > 0 && (
+            <small className="muted">{t('learn.trainerKnown', { n: Object.values(progress.cards).filter((c) => c.box >= 3).length })}</small>
+          )}
+        </a>
+        <a className="card learn-card" href="#/wissen/mythen">
+          <Feather size={26} />
+          <h3>{t('myths.title')}</h3>
+          <p className="muted">{t('learn.mythsText')}</p>
+        </a>
+        <a className="card learn-card" href="#/wissen/galerie">
+          <Images size={26} />
+          <h3>{t('gallery.title')}</h3>
+          <p className="muted">{t('learn.galleryText', { n: GALLERY.length })}</p>
+        </a>
+        <a className="card learn-card" href="#/wissen/exoplaneten">
+          <Globe size={26} />
+          <h3>{t('exo.title')}</h3>
+          <p className="muted">{t('learn.exoText')}</p>
+        </a>
+        <a className="card learn-card" href="#/system/nachbarn">
+          <Sparkles size={26} />
+          <h3>{t('nb.title')}</h3>
+          <p className="muted">{t('learn.neighborsText')}</p>
         </a>
       </div>
 

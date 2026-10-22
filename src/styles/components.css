@@ -70,6 +70,13 @@
   text-decoration: underline;
 }
 
+button.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+}
+
 /* ---------- Karten ---------- */
 
 .card {

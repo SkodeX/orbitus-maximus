@@ -9,6 +9,8 @@ import * as A from 'astronomy-engine';
 import { BODIES, BODY, EARTH_RADIUS_KM, PLANET_ORDER, type BodyDef, type SolarId } from './bodies';
 import { cloudTexture, glowTexture, proceduralTexture, ringTexture } from './textures';
 import type { SkyData } from '../sky/engine';
+import { SolarExtras } from './extras';
+import type { Probe } from '../lib/live/probes';
 
 export type ScaleMode = 'overview' | 'distance' | 'size';
 
@@ -111,10 +113,13 @@ interface Node {
 export interface SolarCallbacks {
   onSelect?: (id: SolarId | null) => void;
   onTick?: (date: Date) => void;
+  /** Eine Raumsonde wurde angetippt */
+  onProbe?: (id: string) => void;
 }
 
 export interface SolarLabels {
   name: (id: SolarId) => string;
+  probe: (p: Probe) => string;
 }
 
 export class SolarEngine {
@@ -146,6 +151,7 @@ export class SolarEngine {
   private down: { x: number; y: number; t: number } | null = null;
   private raycaster = new THREE.Raycaster();
   private sunGlow: { sprite: THREE.Sprite; scale: number }[] = [];
+  private extras: SolarExtras;
 
   constructor(
     private container: HTMLElement,
@@ -183,6 +189,13 @@ export class SolarEngine {
     this.scene.add(this.stars);
     for (const def of BODIES) this.buildBody(def);
     this.buildOrbits();
+    this.extras = new SolarExtras(
+      this.scene,
+      (au, mode, out) => this.scalePos(au, mode, out),
+      this.renderer.getPixelRatio(),
+      (p) => this.names.probe(p),
+      (id) => this.cb.onProbe?.(id),
+    );
     this.update(0);
 
     const el = this.renderer.domElement;
@@ -201,6 +214,7 @@ export class SolarEngine {
   }
 
   destroy() {
+    this.extras.dispose();
     this.renderer.setAnimationLoop(null);
     this.timer.dispose();
     this.resizeObs.disconnect();
@@ -632,6 +646,7 @@ export class SolarEngine {
       this.lastFollow.copy(p);
     }
 
+    this.extras.update(this.time, this.mode, this.prevMode, m, this.camera);
     this.stars.position.copy(this.camera.position);
   }
 
@@ -669,6 +684,38 @@ export class SolarEngine {
   setNames(names: SolarLabels) {
     this.names = names;
     for (const n of this.nodes.values()) n.label.element.textContent = names.name(n.def.id);
+    this.extras.setNames(names.probe);
+  }
+
+  /** Raumsonden und Kleinkörper ein- oder ausblenden */
+  setExtras(opts: { probes?: boolean; belts?: boolean }) {
+    if (opts.probes != null) this.extras.showProbes = opts.probes;
+    if (opts.belts != null) this.extras.showBelts = opts.belts;
+  }
+
+  probe(id: string) {
+    return this.extras.probe(id);
+  }
+
+  /** Kamerafahrt zu einer Raumsonde; liefert false, solange ihre Daten noch fehlen */
+  flyToProbe(id: string) {
+    const p = this.extras.probeScenePosition(id);
+    if (!p) return false;
+    if (this.mode === 'size') this.setMode('overview');
+    this.selected = null;
+    this.follow = null;
+    this.cb.onSelect?.(null);
+    this.controls.enabled = false;
+    const r = Math.max(p.length(), 2);
+    this.flight = {
+      fromPos: this.camera.position.clone(),
+      fromTarget: this.controls.target.clone(),
+      t: 0,
+      dur: 1.8,
+      // Von schräg außen und oben, damit Sonde und Sonne im Bild sind
+      to: () => ({ pos: p.clone().multiplyScalar(1.35).add(new THREE.Vector3(0, r * 0.45, 0)), target: p.clone().multiplyScalar(0.6) }),
+    };
+    return true;
   }
 
   /** Kamerafahrt zu einem Körper; danach wird er mitgeführt */

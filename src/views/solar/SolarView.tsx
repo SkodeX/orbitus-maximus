@@ -10,6 +10,8 @@ import { fmtDate, fmtInt, fmtNum } from '../../lib/format';
 import { Sheet } from '../../components/Sheet';
 import { PlanetGlyph } from '../../components/PlanetGlyph';
 import type { BodyId } from '../../lib/astro';
+import { distanceFromEarthKm, lightTimeSeconds, speedKms, type Probe } from '../../lib/live/probes';
+import { fmtKm, fmtLightTime } from '../../lib/format';
 
 const SPEEDS = [
   { id: 'pause', days: 0 },
@@ -25,7 +27,7 @@ type SpeedId = (typeof SPEEDS)[number]['id'];
 const MODES: ScaleMode[] = ['overview', 'distance', 'size'];
 const SKY_BODIES = new Set<SolarId>(['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']);
 
-export default function SolarView({ focus }: { focus: string | null }) {
+export default function SolarView({ focus, probe }: { focus: string | null; probe?: string | null }) {
   const { settings } = useSettings();
   const { t, lang } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
@@ -39,14 +41,24 @@ export default function SolarView({ focus }: { focus: string | null }) {
   const [panel, setPanel] = useState<null | 'time' | 'scale'>(null);
   const tz = settings.place?.tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  const names = useMemo(() => ({ name: (id: SolarId) => t(`solar.name.${id}` as MsgKey) }), [t]);
+  const names = useMemo(() => ({ name: (id: SolarId) => t(`solar.name.${id}` as MsgKey), probe: (p: Probe) => p.name[lang] }), [t, lang]);
+  const [probeId, setProbeId] = useState<string | null>(null);
+  const [showProbes, setShowProbes] = useState(true);
+  const [showBelts, setShowBelts] = useState(true);
 
   useEffect(() => {
     let engine: SolarEngine;
     try {
       engine = new SolarEngine(ref.current!, skyData as unknown as SkyData, names, {
-        onSelect: setSelected,
+        onSelect: (id) => {
+          setSelected(id);
+          if (id) setProbeId(null);
+        },
         onTick: setDate,
+        onProbe: (id) => {
+          setProbeId(id);
+          engine.flyToProbe(id);
+        },
       });
     } catch {
       setFailed(true);
@@ -71,6 +83,24 @@ export default function SolarView({ focus }: { focus: string | null }) {
     const id = window.setTimeout(() => engineRef.current?.select(focus as SolarId, true), 300);
     return () => window.clearTimeout(id);
   }, [focus]);
+
+  // Raumsonde aus der URL (z. B. aus dem Live-Bereich): warten, bis die Bahndaten geladen sind
+  useEffect(() => {
+    if (!probe) return;
+    let tries = 0;
+    const id = window.setInterval(() => {
+      const e = engineRef.current;
+      if (e?.flyToProbe(probe) || ++tries > 40) {
+        window.clearInterval(id);
+        if (e?.probe(probe)) setProbeId(probe);
+      }
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [probe]);
+
+  useEffect(() => {
+    engineRef.current?.setExtras({ probes: showProbes, belts: showBelts });
+  }, [showProbes, showBelts]);
 
   useEffect(() => {
     const e = engineRef.current;
@@ -183,6 +213,32 @@ export default function SolarView({ focus }: { focus: string | null }) {
               </li>
             ))}
           </ul>
+          <ul className="toggle-list solar-extras">
+            <li>
+              <label className="toggle">
+                <span>{t('solar.showProbes')}</span>
+                <input type="checkbox" checked={showProbes} onChange={(e) => setShowProbes(e.target.checked)} />
+                <span className="switch" aria-hidden="true" />
+              </label>
+            </li>
+            <li>
+              <label className="toggle">
+                <span>{t('solar.showBelts')}</span>
+                <input type="checkbox" checked={showBelts} onChange={(e) => setShowBelts(e.target.checked)} />
+                <span className="switch" aria-hidden="true" />
+              </label>
+            </li>
+          </ul>
+          <p className="muted small">{t('solar.beltsLegend')}</p>
+          <a className="link" href="#/system/nachbarn">
+            {t('nb.title')} <ArrowRight size={15} />
+          </a>
+        </Sheet>
+      )}
+
+      {probeId && !selected && !panel && (
+        <Sheet title={engineRef.current?.probe(probeId)?.name[lang] ?? ''} onClose={() => setProbeId(null)} closeLabel={t('common.close')}>
+          <ProbeInfo id={probeId} engine={engineRef.current} date={date} />
         </Sheet>
       )}
 
@@ -294,3 +350,39 @@ const BODIES_BY_PARENT: Partial<Record<SolarId, SolarId[]>> = {
   saturn: ['titan'],
   pluto: ['charon'],
 };
+
+/** Steckbrief einer Raumsonde zur Zeit der Simulation */
+function ProbeInfo({ id, engine, date }: { id: string; engine: SolarEngine | null; date: Date }) {
+  const { t, lang } = useI18n();
+  const p = engine?.probe(id);
+  if (!p) return null;
+  const km = distanceFromEarthKm(p, date);
+  const v = speedKms(p, date);
+  return (
+    <div className="info">
+      <p className="info-type">
+        {p.agency} · {t('probes.since', { year: p.launch.slice(0, 4) })}
+      </p>
+      <p className="muted">{p.status[lang]}</p>
+      <dl className="detail-grid">
+        {km != null && (
+          <>
+            <dt>{t('probes.fromEarth')}</dt>
+            <dd>{fmtKm(km, lang)}</dd>
+            <dt>{t('probes.signal')}</dt>
+            <dd>{fmtLightTime(lightTimeSeconds(km), lang)}</dd>
+          </>
+        )}
+        {v != null && (
+          <>
+            <dt>{t('probes.speed')}</dt>
+            <dd>{fmtNum(v, lang, 1)} km/s</dd>
+          </>
+        )}
+      </dl>
+      <a className="link" href="#/live#probes">
+        {t('probes.toLive')} <ArrowRight size={15} />
+      </a>
+    </div>
+  );
+}

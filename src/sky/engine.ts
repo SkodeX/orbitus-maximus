@@ -207,6 +207,12 @@ export class SkyEngine {
   iss: IssSky | null = null;
   issTrack: { az: number; alt: number }[] | null = null;
   selected: SkyObject | null = null;
+  /** AR-Modus: durchsichtiger Hintergrund über dem Kamerabild, ohne Boden und Milchstraße */
+  ar = false;
+  /** Bildwinkel festhalten (AR: muss zur Kamera passen) */
+  fovLock = false;
+  /** Kreise für das Gesichtsfeld eines Okulars oder Fernglases (Durchmesser in Grad) */
+  fovCircles: { deg: number; label: string }[] = [];
   private hits: Hit[] = [];
 
   private pointers = new Map<number, { x: number; y: number }>();
@@ -291,7 +297,13 @@ export class SkyEngine {
   }
 
   zoom(factor: number) {
-    this.view.fov = clamp(this.view.fov * factor, 4, 200);
+    if (this.fovLock) return;
+    this.view.fov = clamp(this.view.fov * factor, 0.5, 200);
+    this.invalidate();
+  }
+
+  setFov(fov: number) {
+    this.view.fov = clamp(fov, 0.5, 200);
     this.invalidate();
   }
 
@@ -414,7 +426,7 @@ export class SkyEngine {
     if (this.pointers.size >= 2 && this.pinch) {
       const [a, b] = [...this.pointers.values()];
       const dist = Math.hypot(a.x - b.x, a.y - b.y);
-      this.view.fov = clamp((this.pinch.fov * this.pinch.dist) / Math.max(dist, 1), 4, 200);
+      if (!this.fovLock) this.view.fov = clamp((this.pinch.fov * this.pinch.dist) / Math.max(dist, 1), 0.5, 200);
       this.invalidate();
       return;
     }
@@ -512,7 +524,8 @@ export class SkyEngine {
     const fov = this.view.fov;
     const L = this.layers;
     const ground = L.ground;
-    const dark = clamp((-this.sunAlt - 4) / 14, 0, 1);
+    // Im AR-Modus zählt der echte Himmel hinter der Kamera; Sterne immer kräftig zeichnen
+    const dark = this.ar ? 1 : clamp((-this.sunAlt - 4) / 14, 0, 1);
     const hits: Hit[] = [];
     let selPos: { x: number; y: number; r: number } | null = null;
     const sel = this.selected;
@@ -554,11 +567,15 @@ export class SkyEngine {
     const [sr, sg, sb] = skyRgb(this.sunAlt);
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = 1;
-    ctx.fillStyle = `rgb(${sr | 0},${sg | 0},${sb | 0})`;
-    ctx.fillRect(0, 0, W, H);
+    if (this.ar) {
+      ctx.clearRect(0, 0, W, H);
+    } else {
+      ctx.fillStyle = `rgb(${sr | 0},${sg | 0},${sb | 0})`;
+      ctx.fillRect(0, 0, W, H);
+    }
 
     const sun = this.bodies.get('sun')!;
-    if (this.sunAlt > -16) {
+    if (this.sunAlt > -16 && !this.ar) {
       const p = project(sun.v[0], sun.v[1], sun.v[2], 4000, true);
       if (p) {
         const a = 0.4 * clamp((this.sunAlt + 16) / 16, 0, 1);
@@ -572,7 +589,7 @@ export class SkyEngine {
     }
 
     // --- Milchstraße
-    if (L.milkyWay && dark > 0.05) {
+    if (L.milkyWay && dark > 0.05 && !this.ar) {
       ctx.globalCompositeOperation = 'lighter';
       const v = this.mwVec;
       const radAng = 2.4 * DEG * scale;
@@ -864,7 +881,7 @@ export class SkyEngine {
     }
 
     // --- Boden und Horizont
-    this.drawGround(B, scale, ground, dark);
+    this.drawGround(B, scale, ground && !this.ar, dark);
     const dirs = this.labels.dirs;
     ctx.textAlign = 'center';
     for (let i = 0; i < 8; i++) {
@@ -874,6 +891,26 @@ export class SkyEngine {
       ctx.font = `${main ? 700 : 600} ${main ? 14 : 11}px ${FONT}`;
       ctx.fillStyle = i === 0 ? '#ff8f80' : main ? 'rgba(225,232,255,0.92)' : 'rgba(170,182,225,0.75)';
       ctx.fillText(dirs[i], p.x, p.y + 6);
+    }
+
+    // --- Gesichtsfeld von Okular oder Fernglas, in der Bildmitte
+    if (this.fovCircles.length) {
+      ctx.save();
+      ctx.setLineDash([6, 5]);
+      ctx.lineWidth = 1.4;
+      ctx.font = `600 12px ${FONT}`;
+      ctx.textAlign = 'center';
+      for (const c of this.fovCircles) {
+        const r = 2 * Math.tan((c.deg * DEG) / 4) * scale;
+        if (r < 6 || r > Math.max(W, H)) continue;
+        ctx.strokeStyle = 'rgba(255,213,154,0.85)';
+        ctx.beginPath();
+        ctx.arc(W / 2, H / 2, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,213,154,0.95)';
+        ctx.fillText(c.label, W / 2, H / 2 - r - 6);
+      }
+      ctx.restore();
     }
 
     // --- Auswahl

@@ -100,6 +100,7 @@ export function SettingsView() {
           <li className="is-done">{t('settings.phase3')}</li>
           <li className="is-done">{t('settings.phase4')}</li>
           <li className="is-done">{t('settings.phase5')}</li>
+          <li className="is-done">{t('settings.phase6')}</li>
         </ul>
         <h4>{t('settings.sources')}</h4>
         <ul className="sources">

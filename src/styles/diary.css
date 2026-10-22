@@ -328,3 +328,178 @@
 .diary-actions {
   justify-content: flex-end;
 }
+
+/* ---------- Statistik ---------- */
+
+.diary-stats-card {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.diary-stats-card .card-kicker {
+  margin: 0;
+}
+
+.diary-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.diary-tiles > div {
+  display: grid;
+  gap: 2px;
+}
+
+.diary-tiles strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 5vw, 2rem);
+}
+
+.diary-chart {
+  display: grid;
+  gap: 6px;
+}
+
+.diary-chart-value {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.diary-bars {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2px;
+  height: 90px;
+  align-items: end;
+  border-bottom: 1px solid var(--line);
+}
+
+.diary-bar {
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.diary-bar span {
+  display: block;
+  width: min(70%, 22px);
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  background: rgba(138, 164, 255, 0.55);
+}
+
+.diary-bar.is-on span {
+  background: var(--accent);
+}
+
+.diary-bar-labels {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  font-size: 0.68rem;
+  color: var(--faint);
+  text-align: center;
+}
+
+.diary-top ol {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.diary-top li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+
+/* ---------- Druckansicht ---------- */
+
+.print-only {
+  display: none;
+}
+
+.print-entry {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  break-inside: avoid;
+}
+
+.print-entry h2 {
+  font-size: 1.3rem;
+  margin: 4px 0;
+}
+
+.print-date,
+.print-meta {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.print-notes {
+  margin-top: 8px;
+  white-space: pre-wrap;
+}
+
+.print-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.print-photos img {
+  width: 160px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+@media print {
+  .topbar,
+  .bottomnav,
+  .backdrop,
+  .no-print,
+  .red-filter {
+    display: none !important;
+  }
+
+  html,
+  body,
+  .app,
+  .main {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .print-only {
+    display: block;
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
+
+  .diary-print,
+  .print-date,
+  .print-meta {
+    color: #000 !important;
+  }
+
+  .print-entry {
+    border-color: #ccc;
+  }
+
+  .main {
+    padding: 0 !important;
+  }
+}

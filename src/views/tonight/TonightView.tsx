@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { ArrowRight, Binoculars, BookMarked, Cloud, Eye, MapPin, Sparkles, Sunrise, Sunset, Telescope } from 'lucide-react';
 import { useSettings } from '../../state/settings';
 import { useI18n, type MsgKey } from '../../i18n';
@@ -19,7 +19,11 @@ import {
   fmtTime,
   fmtWeekday,
 } from '../../lib/format';
-import { cloudAverage, fetchClouds, type CloudForecast } from '../../lib/weather';
+import { cloudAverage, cloudHours, fetchClouds, seeingScore, transparencyScore, type CloudForecast } from '../../lib/weather';
+import { ToolStrip } from './ToolStrip';
+
+// „Heute in der Raumfahrtgeschichte“ bringt einen großen Datensatz mit – erst nachladen
+const OnThisDay = lazy(() => import('./OnThisDay').then((m) => ({ default: m.OnThisDay })));
 import { PlanetGlyph } from '../../components/PlanetGlyph';
 import { MoonPhase } from '../../components/MoonPhase';
 import { NightTimeline } from './NightTimeline';
@@ -56,6 +60,16 @@ export function TonightView() {
   const darkTo = night.darkTo ?? night.sunrise ?? night.to;
   const cloudAvg = clouds ? cloudAverage(clouds, darkFrom, darkTo) : null;
   const rating = rateConditions(night, moon, cloudAvg);
+  // Luftruhe und Durchsicht in den dunklen Stunden (Schätzung aus den Wetterdaten)
+  const avgOf = (fn: (f: CloudForecast, i: number) => number | null) => {
+    if (!clouds) return null;
+    const v = cloudHours(clouds, darkFrom, darkTo)
+      .map((h) => fn(clouds, h.i))
+      .filter((x): x is number => x != null);
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  };
+  const seeing = avgOf(seeingScore);
+  const transp = avgOf(transparencyScore);
   const tz = place.tz;
   const conName = (id: string) => (consNames as Record<string, { de: string; en: string }>)[id]?.[lang] ?? id;
 
@@ -87,6 +101,16 @@ export function TonightView() {
                   {cloudError ? t('conditions.cloudsError') : cloudAvg == null ? t('conditions.cloudsLoading') : `${Math.round(cloudAvg)} %`}
                 </dd>
               </div>
+              {seeing != null && transp != null && (
+                <div>
+                  <dt>{t('conditions.seeing')}</dt>
+                  <dd>
+                    <a href="#/beobachten/wetter">
+                      {fmtNum(seeing, lang, 1)} / {fmtNum(transp, lang, 1)}
+                    </a>
+                  </dd>
+                </div>
+              )}
               <div>
                 <dt>{t('conditions.moon')}</dt>
                 <dd>
@@ -119,6 +143,8 @@ export function TonightView() {
         </div>
       </section>
 
+      <ToolStrip />
+
       <section className="section">
         <div className="section-head">
           <p className="eyebrow">{t('planets.eyebrow')}</p>
@@ -145,6 +171,10 @@ export function TonightView() {
           <TipsCard report={report} />
         </div>
       </section>
+
+      <Suspense fallback={null}>
+        <OnThisDay />
+      </Suspense>
 
       <p className="credits">{t('tonight.credits')}</p>
     </div>

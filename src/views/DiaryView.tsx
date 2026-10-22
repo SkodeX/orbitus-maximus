@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Camera, Cloud, Loader2, MapPin, Plus, Star, Trash2, X } from 'lucide-react';
+import { ArrowLeft, Camera, Cloud, FileDown, Loader2, MapPin, Plus, Printer, Share2, Star, Trash2, X } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { useSettings } from '../state/settings';
 import { navigate } from '../lib/router';
@@ -9,6 +9,7 @@ import { deleteEntry, getEntry, newEntry, photoUrl, removePhoto, saveEntry, uplo
 import { fmtDateTime } from '../lib/format';
 import { SHOWPIECES } from '../lib/showpieces';
 import { SHOWERS } from '../lib/meteors';
+import { DiaryPrint, DiaryStats, exportCsv, shareEntryImage } from './DiaryExtras';
 
 const EQUIPMENT = ['eye', 'binoculars', 'telescope', 'camera'] as const;
 
@@ -18,6 +19,7 @@ export function DiaryView({ path, query }: { path: string; query: URLSearchParam
     window.scrollTo(0, 0);
   }, [sub]);
   if (sub === 'neu') return <Editor id={null} query={query} />;
+  if (sub === 'druck') return <DiaryPrint />;
   if (sub) return <Editor id={sub} query={query} />;
   return <DiaryList />;
 }
@@ -38,12 +40,12 @@ function Photo({ path, className }: { path: string; className?: string }) {
 }
 
 function DiaryList() {
-  const { t, lang } = useI18n();
+  const i18n = useI18n();
+  const { t, lang } = i18n;
   const { settings } = useSettings();
   const { user } = useSession();
   const entries = useDiary();
   const tz = settings.place?.tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const objects = new Set(entries.flatMap((e) => e.objects.map((o) => o.toLowerCase())));
 
   const months = useMemo(() => {
     const m = new Map<string, Observation[]>();
@@ -64,6 +66,16 @@ function DiaryList() {
           <a className="btn btn-primary" href="#/tagebuch/neu">
             <Plus size={18} /> {t('diary.new')}
           </a>
+          {entries.length > 0 && (
+            <>
+              <button className="btn btn-ghost" onClick={() => exportCsv(entries, tz, i18n)}>
+                <FileDown size={18} /> CSV
+              </button>
+              <a className="btn btn-ghost" href="#/tagebuch/druck">
+                <Printer size={18} /> {t('diary.print')}
+              </a>
+            </>
+          )}
         </div>
       </header>
 
@@ -74,12 +86,7 @@ function DiaryList() {
         </a>
       )}
 
-      {entries.length > 0 && (
-        <div className="diary-stats">
-          <span className="chip">{entries.length === 1 ? t('diary.countOne') : t('diary.count', { n: entries.length })}</span>
-          <span className="chip">{objects.size === 1 ? t('diary.objectsOne') : t('diary.objects', { n: objects.size })}</span>
-        </div>
-      )}
+      {entries.length > 0 && <DiaryStats entries={entries} tz={tz} />}
 
       {entries.length === 0 && (
         <div className="card diary-empty">
@@ -127,7 +134,8 @@ const toLocalInput = (iso: string) => {
 };
 
 function Editor({ id, query }: { id: string | null; query: URLSearchParams }) {
-  const { t, lang } = useI18n();
+  const i18n = useI18n();
+  const { t, lang } = i18n;
   const { settings } = useSettings();
   const { user } = useSession();
   const existing = id ? getEntry(id) : null;
@@ -341,6 +349,11 @@ function Editor({ id, query }: { id: string | null; query: URLSearchParams }) {
         </div>
 
         <div className="btn-row diary-actions">
+          {existing && (
+            <button type="button" className="btn btn-ghost" onClick={() => shareEntryImage(entry, settings.place?.tz ?? 'UTC', i18n)}>
+              <Share2 size={16} /> {t('diary.share')}
+            </button>
+          )}
           {existing && (
             <button
               type="button"

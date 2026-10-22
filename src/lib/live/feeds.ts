@@ -26,7 +26,68 @@ export interface Launch {
   lon: number | null;
   image: string | null;
   links: string[];
+  /** Livestreams, offizielle zuerst */
+  streams: Stream[];
+  /** Laut Launch Library läuft gerade eine Übertragung */
+  webcastLive: boolean;
 }
+
+export interface Stream {
+  url: string;
+  title: string;
+  publisher: string;
+  official: boolean;
+  /** 'youtube.com', 'x.com' … */
+  source: string;
+  lang: string;
+  /** Beginn und Ende der Übertragung (ISO), falls bekannt */
+  start: string | null;
+  end: string | null;
+}
+
+/** Läuft die Übertragung gerade (bzw. sehr wahrscheinlich)? */
+export function streamLive(s: Stream, launch: Launch, now = Date.now()) {
+  if (launch.webcastLive) return true;
+  const net = Date.parse(launch.net);
+  // Streamseiten werden oft Tage vorher angelegt – „live“ frühestens eine Stunde vor dem Start
+  const from = Math.max(s.start ? Date.parse(s.start) : net - 30 * 60_000, net - 60 * 60_000);
+  const to = Math.min(s.end ? Date.parse(s.end) : net + 90 * 60_000, net + 2 * 3_600_000);
+  return now >= from && now <= to;
+}
+
+interface Ll2Video {
+  priority?: number;
+  source?: string;
+  publisher?: string;
+  title?: string;
+  url: string;
+  type?: { name?: string } | null;
+  language?: { name?: string } | null;
+  start_time?: string | null;
+  end_time?: string | null;
+}
+
+const hostOf = (url: string) => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+};
+
+const toStream = (v: Ll2Video): Stream => {
+  const type = v.type?.name ?? '';
+  return {
+    url: v.url,
+    title: v.title ?? '',
+    publisher: v.publisher ?? '',
+    official: /official/i.test(type) && !/unofficial/i.test(type),
+    source: v.source || hostOf(v.url),
+    lang: v.language?.name ?? '',
+    start: v.start_time ?? null,
+    end: v.end_time ?? null,
+  };
+};
 
 interface Ll2Launch {
   id: string;
@@ -37,12 +98,16 @@ interface Ll2Launch {
   image?: { image_url?: string; thumbnail_url?: string } | string | null;
   launch_service_provider?: { name?: string };
   rocket?: { configuration?: { full_name?: string; name?: string } };
-  mission?: { name?: string; description?: string; orbit?: { abbrev?: string; name?: string }; info_urls?: { url: string }[]; vid_urls?: { url: string }[] } | null;
+  mission?: { name?: string; description?: string; orbit?: { abbrev?: string; name?: string }; info_urls?: { url: string }[]; vid_urls?: Ll2Video[] } | null;
   pad?: { name?: string; latitude?: string | number; longitude?: string | number; location?: { name?: string }; country?: { alpha_2_code?: string } };
+  webcast_live?: boolean;
+  vid_urls?: Ll2Video[];
+  info_urls?: { url: string }[];
 }
 
 export function loadLaunches() {
-  return cachedFetch<Launch[]>('launches', `${LL2}/launches/upcoming/?limit=12&mode=normal`, 30 * MIN, (raw) =>
+  // „detailed“ liefert zusätzlich die Livestream-Links (vid_urls)
+  return cachedFetch<Launch[]>('launches.v2', `${LL2}/launches/upcoming/?limit=12&mode=detailed`, 30 * MIN, (raw) =>
     ((raw as { results: Ll2Launch[] }).results ?? []).map((l) => {
       const img = typeof l.image === 'string' ? l.image : (l.image?.thumbnail_url ?? l.image?.image_url ?? null);
       const [rocket, mission] = l.name.split(' | ');
@@ -66,7 +131,14 @@ export function loadLaunches() {
         lat: Number.isFinite(lat) ? lat : null,
         lon: Number.isFinite(lon) ? lon : null,
         image: img,
-        links: [...(l.mission?.vid_urls ?? []), ...(l.mission?.info_urls ?? [])].map((u) => u.url).slice(0, 2),
+        links: [...(l.info_urls ?? []), ...(l.mission?.info_urls ?? [])].map((u) => u.url).slice(0, 2),
+        streams: (l.vid_urls ?? l.mission?.vid_urls ?? [])
+          .map((v) => ({ v, s: toStream(v) }))
+          // Offizielle Übertragungen zuerst, dann nach Priorität der Launch Library
+          .sort((a, b) => Number(b.s.official) - Number(a.s.official) || (b.v.priority ?? 0) - (a.v.priority ?? 0))
+          .slice(0, 4)
+          .map((x) => x.s),
+        webcastLive: !!l.webcast_live,
       };
     }),
   );

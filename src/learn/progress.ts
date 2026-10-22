@@ -12,10 +12,16 @@ export interface Progress {
   correct: string[];
   tools: string[];
   badges: { id: string; at: number }[];
+  /** Abgehakte Objekte der Beobachtungslisten (IDs wie 'M31', 'C14', 'albireo') */
+  observed: string[];
+  /** Erledigte Aufgaben der Lernpfade ('pfad:aufgabe') */
+  pathTasks: string[];
+  /** Sternbild-Trainer: Lernkarten nach dem Karteikasten-Prinzip (Fach 0–5, nächste Wiederholung) */
+  cards: Record<string, { box: number; due: number; at: number }>;
 }
 
 const KEY = 'orbitus.progress.v1';
-const EMPTY: Progress = { read: [], quizzes: [], correct: [], tools: [], badges: [] };
+const EMPTY: Progress = { read: [], quizzes: [], correct: [], tools: [], badges: [], observed: [], pathTasks: [], cards: {} };
 
 function load(): Progress {
   try {

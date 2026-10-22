@@ -228,3 +228,72 @@
   color: var(--faint);
   margin-bottom: 16px;
 }
+
+/* ---------- AR: Kamerabild hinter der Karte ---------- */
+
+.sky-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.sky.is-ar .sky-canvas {
+  background: transparent;
+}
+
+.ar-panel {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: calc(var(--topbar-h) + var(--safe-top) + 84px);
+  margin-inline: auto;
+  max-width: 440px;
+  display: grid;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(10, 12, 28, 0.7);
+  border: 1px solid var(--line);
+  font-size: 0.8rem;
+  color: var(--muted);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ar-panel label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ar-panel input {
+  flex: 1;
+}
+
+.ar-start {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(340px, calc(100% - 32px));
+  text-align: left;
+  color: var(--text);
+  border-color: rgba(138, 164, 255, 0.5);
+  background: rgba(12, 14, 32, 0.92);
+}
+
+.ar-start svg {
+  color: var(--accent);
+  flex: none;
+}
+
+.ar-start span {
+  display: grid;
+  gap: 2px;
+}

@@ -1,15 +1,19 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Rocket, Satellite, Users, Zap } from 'lucide-react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Play, Rocket, Satellite, Users, Zap } from 'lucide-react';
 import type { SatRec } from '../../lib/live/sgp4';
 import { useSettings } from '../../state/settings';
 import { useI18n, type MsgKey } from '../../i18n';
 import { useNow } from '../../lib/useNow';
 import { useLive } from '../../lib/live/useLive';
 import { loadIss } from '../../lib/live/iss';
-import { loadAstronauts, loadLaunches, loadNasaImages, loadNews, type Astronaut, type Launch } from '../../lib/live/feeds';
+import { loadAstronauts, loadLaunches, loadNasaImages, loadNews, streamLive, type Astronaut, type Launch } from '../../lib/live/feeds';
 import { kpLevel, kpNeeded, loadKpForecast, loadKpNow, loadScales, loadSolarWind, type KpPoint } from '../../lib/live/spaceWeather';
 import { fmtDateTime, fmtDay, fmtNum, fmtTime, localDayKey, localeOf } from '../../lib/format';
 import { IssCard, usePasses } from './IssCard';
+import { DsnCard } from './DsnCard';
+import { ProbesCard } from './ProbesCard';
+
+const SatCloud = lazy(() => import('./SatCloud'));
 
 const flag = (cc: string) =>
   cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65)) : '';
@@ -109,6 +113,7 @@ export function LiveView() {
             </span>
           </a>
         </div>
+        <LiveNow list={upcoming} />
       </header>
 
       <section className="section" id="iss">
@@ -127,6 +132,23 @@ export function LiveView() {
           <h2>{t('launch.title')}</h2>
         </div>
         <Launches list={upcoming} error={launches.error && !launches.data} stale={launches.stale} />
+      </section>
+
+      <section className="section" id="sats">
+        <div className="section-head">
+          <p className="eyebrow">{t('sats.eyebrow')}</p>
+          <h2>{t('sats.title')}</h2>
+          <p className="muted">{t('sats.lead')}</p>
+        </div>
+        <SatSection />
+      </section>
+
+      <section className="section" id="probes">
+        <ProbesCard />
+      </section>
+
+      <section className="section" id="dsn">
+        <DsnCard />
       </section>
 
       <section className="section" id="apod">
@@ -207,6 +229,7 @@ function Launches({ list, error, stale }: { list: Launch[]; error: boolean; stal
                   {flag(l.country)} {l.location}
                   {l.orbit && l.orbit !== 'N/A' ? ` · ${t('launch.orbit')} ${l.orbit}` : ''}
                 </p>
+                {l.streams?.length > 0 && <Streams launch={l} />}
                 {l.missionText && (
                   <details className="details">
                     <summary>{t('launch.mission')}</summary>
@@ -228,6 +251,89 @@ function Launches({ list, error, stale }: { list: Launch[]; error: boolean; stal
         {stale && ` ${t('live.stale')}`}
       </p>
     </>
+  );
+}
+
+/** Die Satellitenwolke lädt rund 2,7 MB Bahndaten – deshalb erst auf Wunsch */
+function SatSection() {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  if (!open)
+    return (
+      <article className="card sat-teaser">
+        <div className="sat-teaser-art" aria-hidden="true" />
+        <div>
+          <p className="muted">{t('sats.teaser')}</p>
+          <button className="btn btn-primary" onClick={() => setOpen(true)}>
+            <Satellite size={18} /> {t('sats.show')}
+          </button>
+          <p className="note">{t('sats.size')}</p>
+        </div>
+      </article>
+    );
+  return (
+    <Suspense fallback={<article className="card muted">{t('live.loading')}</article>}>
+      <SatCloud />
+    </Suspense>
+  );
+}
+
+/** Livestream-Links eines Starts: offizieller Stream als Knopf, weitere aufklappbar */
+function Streams({ launch }: { launch: Launch }) {
+  const { settings } = useSettings();
+  const { t, lang } = useI18n();
+  const now = useNow(30_000).getTime();
+  const [main, ...rest] = launch.streams;
+  const live = streamLive(main, launch, now);
+  const startsLater = !live && main.start && Date.parse(main.start) > now;
+  return (
+    <div className="streams">
+      <a className={`btn btn-sm ${live ? 'btn-live' : 'btn-ghost'}`} href={main.url} target="_blank" rel="noreferrer">
+        {live ? <span className="live-dot" /> : <Play size={15} />}
+        {live ? t('launch.watchLive') : t('launch.stream')}
+        <span className="stream-src">{main.publisher || main.source}</span>
+      </a>
+      {startsLater && <p className="muted small">{t('launch.streamFrom', { time: fmtDateTime(new Date(main.start!), settings.place!.tz, lang) })}</p>}
+      {rest.length > 0 && (
+        <details className="details">
+          <summary>{t('launch.moreStreams', { n: rest.length })}</summary>
+          <ul className="stream-list">
+            {rest.map((s) => (
+              <li key={s.url}>
+                <a href={s.url} target="_blank" rel="noreferrer">
+                  {s.publisher || s.source} <ExternalLink size={13} />
+                </a>
+                <span className="muted small">
+                  {s.official ? t('launch.official') : t('launch.unofficial')}
+                  {s.lang && ` · ${s.lang}`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
+  );
+}
+
+/** Hinweis oben auf der Seite, solange ein Start live übertragen wird */
+function LiveNow({ list }: { list: Launch[] }) {
+  const { t } = useI18n();
+  const now = useNow(30_000).getTime();
+  const live = list.find((l) => l.streams?.length && streamLive(l.streams[0], l, now));
+  if (!live) return null;
+  return (
+    <a className="card live-now" href={live.streams[0].url} target="_blank" rel="noreferrer">
+      <span className="live-dot" />
+      <span>
+        <small>{t('launch.liveNow')}</small>
+        <strong>{live.mission || live.name}</strong>
+        <span className="muted small">
+          {live.rocket} · {live.streams[0].publisher || live.streams[0].source}
+        </span>
+      </span>
+      <Play size={20} />
+    </a>
   );
 }
 

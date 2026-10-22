@@ -42,6 +42,16 @@ export function mergeProgress(a: Progress, b: Partial<Progress>): Progress {
     tools: union(a.tools, b.tools),
     badges: [...badges.entries()].map(([id, at]) => ({ id, at })),
     quizzes: [...quizzes.values()].sort((x, y) => x.at - y.at).slice(-100),
+    observed: union(a.observed, b.observed),
+    pathTasks: union(a.pathTasks, b.pathTasks),
+    // Lernkarten: der jeweils neuere Stand gewinnt
+    cards: Object.fromEntries(
+      [...new Set([...Object.keys(a.cards ?? {}), ...Object.keys(b.cards ?? {})])].map((k) => {
+        const x = a.cards?.[k];
+        const z = b.cards?.[k];
+        return [k, !x ? z! : !z ? x : z.at > x.at ? z : x];
+      }),
+    ),
   };
 }
 

@@ -1,0 +1,1071 @@
+/* ---------- Beobachten: Übersicht ---------- */
+
+.tool-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+}
+
+.tool-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.tool-card:hover {
+  border-color: rgba(138, 164, 255, 0.45);
+}
+
+.tool-card > span:last-child {
+  display: grid;
+  gap: 3px;
+}
+
+.tool-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(138, 164, 255, 0.12);
+  color: var(--accent);
+  flex: none;
+}
+
+.tool-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+
+.tool-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.tool-chip {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 104px;
+  padding: 16px 12px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  flex: none;
+}
+
+.tool-chip svg {
+  color: var(--accent);
+}
+
+.tool-chip--all {
+  background: rgba(138, 164, 255, 0.1);
+}
+
+/* ---------- Astro-Wetter ---------- */
+
+.wx-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin-bottom: 16px;
+}
+
+.wx-stat strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.wx-stat .card-kicker {
+  margin-bottom: 6px;
+}
+
+.wx-board-card {
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.wx-scroll {
+  overflow-x: auto;
+}
+
+.wx-board {
+  border-collapse: separate;
+  border-spacing: 1px;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.wx-board th[scope='row'] {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  padding: 0 8px 0 0;
+  background: #0b0d20;
+  color: var(--muted);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.wx-board td {
+  min-width: 24px;
+  height: 22px;
+  border-radius: 4px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wx-day {
+  text-align: left;
+  font-weight: 700;
+  color: var(--text);
+  padding: 0 0 4px 2px;
+  border-left: 1px solid var(--line-strong);
+}
+
+.wx-hour {
+  color: var(--faint);
+  font-weight: 500;
+}
+
+.wx-hour.is-day {
+  color: #c9a24a;
+}
+
+/* ---------- Okular-Rechner ---------- */
+
+.ep-card {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ep-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ep-choices .chip {
+  cursor: pointer;
+  font-size: 0.86rem;
+  padding: 7px 12px;
+}
+
+.ep-sub {
+  margin: 10px 0 0;
+}
+
+.ep-remove {
+  justify-self: start;
+  color: var(--faint);
+  font-size: 0.82rem;
+}
+
+.ep-form {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+}
+
+.ep-form .btn-row {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+}
+
+.ep-layout {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 900px) {
+  .ep-layout {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.ep-big {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.ep-big > div {
+  display: grid;
+  gap: 2px;
+}
+
+.ep-big strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 5vw, 1.8rem);
+}
+
+.ep-warn {
+  margin-top: 10px;
+  color: var(--warn);
+  font-size: 0.88rem;
+}
+
+.ep-targets {
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.ep-preview {
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin: 0 auto 10px;
+}
+
+.ep-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ep-table th,
+.ep-table td {
+  padding: 8px 6px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+.ep-table th {
+  color: var(--faint);
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
+.ep-table tr.is-bad td {
+  color: var(--faint);
+}
+
+/* ---------- Finsternisse ---------- */
+
+.ecl-tabs {
+  margin-bottom: 16px;
+}
+
+.ecl-list {
+  display: grid;
+  gap: 12px;
+}
+
+.ecl-card {
+  display: grid;
+  gap: 6px;
+}
+
+.ecl-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ecl-head h3 {
+  font-size: 1.15rem !important;
+}
+
+.ecl-kind--total {
+  background: rgba(255, 213, 107, 0.18);
+  color: #ffd56b;
+}
+
+.ecl-kind--annular {
+  background: rgba(255, 168, 107, 0.18);
+  color: var(--warm);
+}
+
+.ecl-kind--partial {
+  background: rgba(138, 164, 255, 0.15);
+  color: var(--accent);
+}
+
+.ecl-local {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.ecl-local svg {
+  flex: none;
+  margin-top: 3px;
+}
+
+.ecl-local.is-visible {
+  color: var(--good);
+}
+
+.ecl-total {
+  color: #ffd56b;
+  font-weight: 600;
+}
+
+.ecl-actions {
+  justify-content: flex-start;
+  margin-top: 4px;
+}
+
+.ecl-map svg,
+.ecl-sim svg,
+.ecl-shadow svg {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+}
+
+.ecl-sim svg,
+.ecl-shadow svg {
+  max-width: 320px;
+  margin: 8px auto;
+}
+
+.map-sphere {
+  fill: #0a1230;
+}
+
+.map-grid {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 0.5;
+}
+
+.map-land {
+  fill: #26304f;
+}
+
+.map-me {
+  fill: #ffd59a;
+  stroke: #05060f;
+  stroke-width: 1.5;
+}
+
+.ecl-path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.ecl-path--total {
+  stroke: #ffd56b;
+}
+
+.ecl-path--annular {
+  stroke: #ffa86b;
+}
+
+.ecl-gm {
+  fill: #ff5d5d;
+}
+
+.ecl-sim-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ecl-sim-controls .range {
+  flex: 1;
+}
+
+.ecl-sim-readout {
+  font-variant-numeric: tabular-nums;
+}
+
+.ecl-sim-note {
+  fill: var(--muted);
+  font-size: 8px;
+}
+
+/* ---------- Jupiter & Saturn ---------- */
+
+.jup-card {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.jup-diagram {
+  width: 100%;
+  display: block;
+  background: #03040b;
+  border-radius: 12px;
+  aspect-ratio: 4 / 1;
+}
+
+.jup-label {
+  fill: var(--muted);
+  font-size: 1px;
+  text-anchor: middle;
+  font-weight: 600;
+}
+
+.jup-dir {
+  fill: var(--faint);
+  font-size: 0.7px;
+}
+
+.jup-moons,
+.jup-events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.jup-moons li,
+.jup-events li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jup-events li > span:last-child {
+  display: grid;
+}
+
+.jup-chart {
+  width: 100%;
+  height: 420px;
+  display: block;
+  background: #03040b;
+  border-radius: 12px;
+}
+
+.jup-time {
+  fill: var(--faint);
+  font-size: 1.6px;
+}
+
+.is-good {
+  color: var(--good);
+}
+
+.sat-moons-card {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* ---------- Kalender ---------- */
+
+.cal-filters {
+  margin-bottom: 8px;
+}
+
+.cal-filters .chip {
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.cal-filters .chip.is-on {
+  opacity: 1;
+}
+
+.cal-month {
+  padding-top: 26px;
+}
+
+.cal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.cal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.cal-item > div {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.cal-item a {
+  color: var(--text);
+}
+
+.cal-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(138, 164, 255, 0.12);
+  color: var(--accent);
+  flex: none;
+}
+
+.cal-icon--moon {
+  color: #ffe9b0;
+  background: rgba(255, 233, 176, 0.1);
+}
+
+.cal-icon--meteors {
+  color: #c58bff;
+  background: rgba(197, 139, 255, 0.12);
+}
+
+.cal-icon--eclipse {
+  color: #ffd56b;
+  background: rgba(255, 213, 107, 0.12);
+}
+
+.cal-icon--launch {
+  color: #ff8f8f;
+  background: rgba(255, 93, 93, 0.12);
+}
+
+.cal-icon--season {
+  color: var(--good);
+  background: rgba(107, 227, 164, 0.1);
+}
+
+/* ---------- Mondatlas ---------- */
+
+.moon-stage {
+  position: relative;
+  height: min(70vh, 640px);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: radial-gradient(ellipse at center, #0b1022, #020309 75%);
+  touch-action: none;
+}
+
+.moon-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.moon-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.moon-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 1px 5px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(5, 6, 15, 0.45);
+  color: rgba(235, 240, 255, 0.92);
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.moon-label--mare {
+  color: #9fc2ff;
+  font-style: italic;
+  background: transparent;
+  text-shadow: 0 0 4px #000;
+}
+
+.moon-label--landing {
+  color: #ffd59a;
+}
+
+.moon-label--landing::before {
+  content: '▲ ';
+  font-size: 0.55rem;
+}
+
+.moon-label.is-selected {
+  background: var(--accent);
+  color: #070816;
+  font-style: normal;
+}
+
+.moon-tools {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.moon-info {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  max-width: min(360px, calc(100% - 20px));
+  padding: 14px 16px;
+  display: grid;
+  gap: 4px;
+  background: rgba(10, 12, 28, 0.9);
+}
+
+.moon-info .icon-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+}
+
+.moon-info .card-kicker {
+  margin-bottom: 0;
+}
+
+.moon-bar {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 16px;
+}
+
+.moon-term .chip {
+  cursor: pointer;
+  color: var(--text);
+}
+
+/* ---------- Heute in der Raumfahrtgeschichte ---------- */
+
+.history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-head .card-kicker {
+  margin: 0;
+}
+
+.history-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.history-nav .icon-btn {
+  width: 32px;
+  height: 32px;
+}
+
+.history-card h3 {
+  margin: 8px 0 12px;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.history-list li {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 12px;
+}
+
+.history-list li > span:last-child {
+  display: grid;
+  gap: 4px;
+}
+
+.history-year {
+  display: grid;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.history-year small {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* ---------- Beobachtungslisten ---------- */
+
+.list-card > span:last-child {
+  gap: 6px;
+}
+
+.list-progress {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.list-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--grad);
+}
+
+.list-progress--big {
+  max-width: 420px;
+  height: 8px;
+  margin-top: 8px;
+}
+
+.list-count {
+  margin-top: 14px;
+}
+
+.list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 14px;
+}
+
+.list-tools .toggle {
+  gap: 12px;
+  padding: 0;
+}
+
+.list-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.list-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.list-item.is-done {
+  border-color: rgba(107, 227, 164, 0.35);
+}
+
+.list-check {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line-strong);
+  background: transparent;
+  color: transparent;
+  flex: none;
+}
+
+.list-check.is-on {
+  background: var(--good);
+  border-color: var(--good);
+  color: #05060f;
+}
+
+.list-body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.list-title {
+  display: grid;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.list-best.is-good {
+  color: var(--good);
+}
+
+.list-more {
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.list-more .btn-row {
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+/* ---------- Lichtverschmutzung ---------- */
+
+.lp-bortle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.lp-class {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  flex: none;
+}
+
+.lp-scalebar {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 2px;
+  margin-bottom: 12px;
+}
+
+.lp-scalebar span {
+  display: grid;
+  place-items: center;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0.55;
+}
+
+.lp-scalebar span.is-on {
+  opacity: 1;
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+}
+
+.lp-class--1 {
+  background: #05060f;
+  color: #c8d0ee;
+  border: 1px solid var(--line-strong);
+}
+.lp-class--2 {
+  background: #16163a;
+  color: #c8d0ee;
+}
+.lp-class--3 {
+  background: #2a2a66;
+  color: #e0e4ff;
+}
+.lp-class--4 {
+  background: #4a3a86;
+  color: #fff;
+}
+.lp-class--5 {
+  background: #7a3f8f;
+  color: #fff;
+}
+.lp-class--6 {
+  background: #b8507a;
+  color: #fff;
+}
+.lp-class--7 {
+  background: #e8805c;
+  color: #1a0f08;
+}
+.lp-class--8 {
+  background: #ffc078;
+  color: #1a0f08;
+}
+.lp-class--9 {
+  background: #fff2d8;
+  color: #1a0f08;
+}
+
+.lp-map {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1;
+  margin: 0 auto 12px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.lp-map canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.lp-me,
+.lp-dark {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.lp-me {
+  color: #fff;
+  filter: drop-shadow(0 0 3px #000);
+  transform: translate(-50%, -90%);
+}
+
+.lp-dark {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--good);
+  color: #05060f;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 2px solid #05060f;
+}
+
+.lp-scale {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 0 3px #000;
+}
+
+.lp-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.lp-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lp-list li > span:nth-child(2) {
+  display: grid;
+  flex: 1;
+}
+
+.lp-num {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--good);
+  color: #05060f;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex: none;
+}
+
+/* ---------- Kometen & Asteroiden ---------- */
+
+.comet-item,
+.neo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.comet-item {
+  align-items: flex-start;
+}
+
+.comet-mag {
+  display: grid;
+  place-items: center;
+  min-width: 52px;
+  height: 36px;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.comet-mag--eye {
+  background: rgba(107, 227, 164, 0.18);
+  color: var(--good);
+}
+
+.comet-mag--binoculars {
+  background: rgba(138, 164, 255, 0.16);
+  color: var(--accent);
+}
+
+.comet-mag--telescope {
+  background: var(--card-strong);
+  color: var(--muted);
+}
+
+.comet-curve svg {
+  width: 100%;
+  max-width: 320px;
+  display: block;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.comet-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.comet-today {
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-dasharray: 2 2;
+}
+
+.neo-item .list-body {
+  flex: 1;
+}
+
+.neo-dist {
+  display: grid;
+  justify-items: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.neo-dist strong {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.neo-haz {
+  color: var(--warn);
+}

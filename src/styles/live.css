@@ -832,3 +832,362 @@
   outline: none;
   border-color: var(--accent);
 }
+
+/* ---------- Livestreams ---------- */
+
+.streams {
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.streams .btn {
+  justify-self: start;
+}
+
+.btn-live {
+  background: #ff5d5d;
+  color: #fff;
+  box-shadow: 0 10px 30px -10px rgba(255, 93, 93, 0.8);
+}
+
+.btn-live .live-dot {
+  background: #fff;
+}
+
+.stream-src {
+  font-weight: 500;
+  opacity: 0.7;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.streams .details {
+  margin-top: 4px;
+}
+
+.stream-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  font-size: 0.88rem;
+}
+
+.stream-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.stream-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.live-now {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 14px 18px;
+  border-color: rgba(255, 93, 93, 0.45);
+  background: linear-gradient(90deg, rgba(255, 93, 93, 0.18), rgba(255, 93, 93, 0.04));
+  color: var(--text);
+}
+
+.live-now > span:nth-child(2) {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.live-now small {
+  color: #ff8f8f;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+/* ---------- Satellitenwolke ---------- */
+
+.sat-teaser {
+  display: grid;
+  gap: 18px;
+  align-items: center;
+}
+
+.sat-teaser .btn {
+  margin-top: 14px;
+}
+
+.sat-teaser-art {
+  height: 160px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 50%, #2a4a8a 0 22%, transparent 23%),
+    radial-gradient(circle at 50% 50%, transparent 0 30%, rgba(159, 194, 255, 0.35) 31%, transparent 33%),
+    radial-gradient(circle at 50% 50%, transparent 0 44%, rgba(255, 213, 107, 0.3) 45%, transparent 46.5%),
+    radial-gradient(circle at 50% 50%, transparent 0 60%, rgba(107, 227, 164, 0.3) 61%, transparent 62.5%),
+    radial-gradient(ellipse at center, #0b1430, #05060f 70%);
+}
+
+@media (min-width: 760px) {
+  .sat-teaser {
+    grid-template-columns: 260px 1fr;
+  }
+}
+
+.satcloud {
+  display: grid;
+  gap: 10px;
+}
+
+.sat-stage {
+  position: relative;
+  height: min(72vh, 620px);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: radial-gradient(ellipse at center, #0b1430, #03040b 75%);
+  touch-action: none;
+}
+
+.sat-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sat-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.sat-pick {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  max-width: min(320px, calc(100% - 24px));
+  padding: 14px 16px;
+  display: grid;
+  gap: 2px;
+  background: rgba(10, 12, 28, 0.88);
+}
+
+.sat-pick .card-kicker {
+  margin-bottom: 2px;
+}
+
+.sat-pick .icon-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+}
+
+.sat-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sat-legend .chip {
+  cursor: pointer;
+  opacity: 0.45;
+}
+
+.sat-legend .chip.is-on {
+  opacity: 1;
+  color: var(--text);
+}
+
+.sat-dot,
+.probes-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* ---------- Raumsonden ---------- */
+
+.probes-layout {
+  display: grid;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+@media (min-width: 900px) {
+  .probes-layout {
+    grid-template-columns: minmax(280px, 400px) 1fr;
+    align-items: start;
+  }
+}
+
+.probes-map {
+  width: 100%;
+  max-width: 420px;
+  justify-self: center;
+  aspect-ratio: 1;
+}
+
+.probes-orbit {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 0.8;
+}
+
+.probes-ring {
+  fill: none;
+  stroke: rgba(138, 164, 255, 0.18);
+  stroke-dasharray: 2 4;
+  stroke-width: 0.8;
+}
+
+.probes-ring-label {
+  font-size: 7px;
+  fill: var(--faint);
+  text-anchor: middle;
+}
+
+.probes-sun {
+  fill: #ffd59a;
+  filter: drop-shadow(0 0 4px #ffb347);
+}
+
+.probes-planet {
+  fill: #9aa2c0;
+}
+
+.probes-planet--earth {
+  fill: #6fa8ff;
+}
+
+.probes-label {
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.probes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.probes-list li {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.probes-list li + li {
+  border-top: 1px solid var(--line);
+}
+
+.probes-list .probes-dot {
+  margin-top: 6px;
+}
+
+.probes-list li > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.probes-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  color: var(--muted);
+}
+
+.probes-stats b {
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Deep Space Network ---------- */
+
+.dsn-far {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-top: 12px;
+  color: var(--text);
+}
+
+.dsn-far svg {
+  color: var(--accent);
+  flex: none;
+  margin-top: 3px;
+}
+
+.dsn-sites {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+@media (min-width: 860px) {
+  .dsn-sites {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.dsn-site {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+}
+
+.dsn-site h4 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 8px !important;
+}
+
+.dsn-site ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.dsn-site li {
+  display: grid;
+  gap: 1px;
+}
+
+.dsn-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.dsn-meta svg {
+  color: var(--good);
+  margin-right: -6px;
+}

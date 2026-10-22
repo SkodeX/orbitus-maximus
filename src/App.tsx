@@ -15,6 +15,8 @@ const SkyView = lazy(() => import('./views/sky/SkyView'));
 // 3D-Sonnensystem (three.js) und Live-Seite ebenfalls erst bei Bedarf laden
 const SolarView = lazy(() => import('./views/solar/SolarView'));
 const LearnView = lazy(() => import('./views/learn/LearnView'));
+const NeighborsView = lazy(() => import('./views/solar/NeighborsView'));
+const ObserveView = lazy(() => import('./views/observe/ObserveView'));
 const LiveView = lazy(() => import('./views/live/LiveView').then((m) => ({ default: m.LiveView })));
 
 function Shell() {
@@ -33,6 +35,8 @@ function Shell() {
         ? 'diary'
       : route.path.startsWith('/wissen')
         ? 'learn'
+      : route.path.startsWith('/beobachten')
+        ? 'observe'
       : route.path.startsWith('/live')
       ? 'live'
       : route.path.startsWith('/settings')
@@ -49,12 +53,21 @@ function Shell() {
         {view === 'diary' && <DiaryView path={route.path} query={route.query} />}
         {view === 'solar' && (
           <Suspense fallback={<div className="loading">{t('solar.loading')}</div>}>
-            <SolarView focus={route.query.get('focus')} />
+            {route.path.startsWith('/system/nachbarn') ? (
+              <NeighborsView />
+            ) : (
+              <SolarView focus={route.query.get('focus')} probe={route.query.get('probe')} />
+            )}
           </Suspense>
         )}
         {view === 'learn' && (
           <Suspense fallback={<div className="loading">{t('live.loading')}</div>}>
             <LearnView path={route.path} query={route.query} />
+          </Suspense>
+        )}
+        {view === 'observe' && (
+          <Suspense fallback={<div className="loading">{t('live.loading')}</div>}>
+            <ObserveView path={route.path} query={route.query} />
           </Suspense>
         )}
         {view === 'live' && (
@@ -64,7 +77,7 @@ function Shell() {
         )}
         {view === 'sky' && (
           <Suspense fallback={<div className="loading">{t('common.loadingSky')}</div>}>
-            <SkyView focus={route.query.get('focus')} at={Number(route.query.get('t')) || null} />
+            <SkyView focus={route.query.get('focus')} at={Number(route.query.get('t')) || null} autoAr={route.query.get('ar') === '1'} />
           </Suspense>
         )}
       </main>

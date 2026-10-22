@@ -2,7 +2,10 @@ import { BookMarked, Eye, EyeOff, GraduationCap, MapPin, Moon, Orbit, Satellite,
 import { useSettings } from '../state/settings';
 import { useI18n } from '../i18n';
 
-export type ViewId = 'tonight' | 'sky' | 'solar' | 'live' | 'learn' | 'diary' | 'settings';
+export type ViewId = 'tonight' | 'observe' | 'sky' | 'solar' | 'live' | 'learn' | 'diary' | 'settings';
+
+/** „Beobachten“ gehört zum Bereich „Heute“ */
+const navOf = (v: ViewId): ViewId => (v === 'observe' ? 'tonight' : v);
 
 const NAV: { id: ViewId; href: string; icon: typeof Moon; key: 'nav.tonight' | 'nav.sky' | 'nav.solar' | 'nav.live' | 'nav.learn' }[] = [
   { id: 'tonight', href: '#/', icon: Moon, key: 'nav.tonight' },
@@ -25,7 +28,7 @@ export function TopBar({ view }: { view: ViewId }) {
       </a>
       <nav className="topnav" aria-label={t('nav.main')}>
         {NAV.map(({ id, href, key }) => (
-          <a key={id} href={href} className={view === id ? 'is-active' : ''} aria-current={view === id ? 'page' : undefined}>
+          <a key={id} href={href} className={navOf(view) === id ? 'is-active' : ''} aria-current={navOf(view) === id ? 'page' : undefined}>
             {t(key)}
           </a>
         ))}
@@ -63,7 +66,7 @@ export function BottomNav({ view }: { view: ViewId }) {
   return (
     <nav className="bottomnav" aria-label={t('nav.main')}>
       {NAV.map(({ id, href, icon: Icon, key }) => (
-        <a key={id} href={href} className={view === id ? 'is-active' : ''} aria-current={view === id ? 'page' : undefined}>
+        <a key={id} href={href} className={navOf(view) === id ? 'is-active' : ''} aria-current={navOf(view) === id ? 'page' : undefined}>
           <Icon size={22} />
           <span>{t(key)}</span>
         </a>

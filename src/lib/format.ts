@@ -96,6 +96,29 @@ export function fmtCoords(lat: number, lon: number, lang: Lang) {
   return `${fmtNum(Math.abs(lat), lang, 2)}° ${ns}, ${fmtNum(Math.abs(lon), lang, 2)}° ${ew}`;
 }
 
+/** Große Entfernungen lesbar: „384.400 km“, „225 Mio. km“, „25,3 Mrd. km“ */
+export function fmtKm(km: number, lang: Lang) {
+  if (km >= 1e9) return `${fmtNum(km / 1e9, lang, 1)} ${lang === 'de' ? 'Mrd. km' : 'billion km'}`;
+  if (km >= 1e7) return `${fmtInt(km / 1e6, lang)} ${lang === 'de' ? 'Mio. km' : 'million km'}`;
+  if (km >= 1e6) return `${fmtNum(km / 1e6, lang, 1)} ${lang === 'de' ? 'Mio. km' : 'million km'}`;
+  return `${fmtInt(km, lang)} km`;
+}
+
+/** Laufzeit eines Lichtsignals: „1,3 s“, „4 min 12 s“, „23 h 10 min“ */
+export function fmtLightTime(seconds: number, lang: Lang) {
+  if (seconds < 60) return `${fmtNum(seconds, lang, 1)} s`;
+  const m = Math.floor(seconds / 60);
+  if (m < 60) return `${m} min ${Math.round(seconds % 60)} s`;
+  return `${Math.floor(m / 60)} h ${m % 60} min`;
+}
+
+/** Datenrate: „160 bit/s“, „52 kbit/s“, „2,1 Mbit/s“ */
+export function fmtRate(bps: number, lang: Lang) {
+  if (bps >= 1e6) return `${fmtNum(bps / 1e6, lang, 1)} Mbit/s`;
+  if (bps >= 1e3) return `${fmtInt(bps / 1e3, lang)} kbit/s`;
+  return `${fmtInt(bps, lang)} bit/s`;
+}
+
 /** Diakritika entfernen, für tolerante Suche */
 export const fold = (s: string) =>
   s

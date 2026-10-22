@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "sky-data": "node scripts/build-sky-data.mjs",
-    "icons": "pwa-assets-generator"
+    "icons": "pwa-assets-generator",
+    "catalogs": "node scripts/build-catalogs.mjs",
+    "ephemerides": "node scripts/build-ephemerides.mjs",
+    "data": "npm run catalogs && npm run ephemerides"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",

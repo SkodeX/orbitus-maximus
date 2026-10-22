@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Clock, Compass, Layers, Minus, Plus, RotateCcw, Search } from 'lucide-react';
+import { ArrowRight, Camera, Clock, Compass, Layers, Minus, Plus, RotateCcw, Search } from 'lucide-react';
 import type { SatRec } from '../../lib/live/sgp4';
 import skyData from '../../data/sky.json';
 import { issLook, issState, loadIss } from '../../lib/live/iss';
@@ -12,6 +12,8 @@ import { compass, compassLabels, compassLong, fmtDateTime, fmtInt, fmtTime } fro
 import { Sheet } from '../../components/Sheet';
 import { InfoPanel } from './InfoPanel';
 import { SearchPanel } from './SearchPanel';
+import { opticsLabel, opticsStats } from '../../lib/observe/optics';
+import { cameraFov, readArFov, startCamera, writeArFov } from './ar';
 
 const data = skyData as unknown as SkyData;
 type Panel = null | 'layers' | 'search' | 'time';
@@ -24,6 +26,10 @@ function parseFocus(focus: string | null): SkyObject | null {
   const [kind, rest] = [focus.slice(0, focus.indexOf(':')), focus.slice(focus.indexOf(':') + 1)];
   if (kind === 'body') return { kind: 'body', id: rest as never };
   if (kind === 'meteor') return { kind: 'meteor', id: rest };
+  if (kind === 'con') {
+    const index = data.constellations.findIndex((c) => c.id === rest);
+    return index >= 0 ? { kind: 'constellation', index } : null;
+  }
   if (kind === 'dso') {
     const index = data.messier.findIndex((m) => m.id === rest);
     return index >= 0 ? { kind: 'dso', index } : null;
@@ -44,8 +50,8 @@ interface IssInfoData {
   lit: boolean;
 }
 
-export default function SkyView({ focus, at }: { focus: string | null; at: number | null }) {
-  const { settings, setLayer } = useSettings();
+export default function SkyView({ focus, at, autoAr = false }: { focus: string | null; at: number | null; autoAr?: boolean }) {
+  const { settings, setLayer, update } = useSettings();
   const { t, lang } = useI18n();
   const place = settings.place!;
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -55,6 +61,11 @@ export default function SkyView({ focus, at }: { focus: string | null; at: numbe
   const [selected, setSelected] = useState<SkyObject | null>(null);
   const [panel, setPanel] = useState<Panel>(null);
   const [gyro, setGyro] = useState<GyroState>('off');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const stopCamera = useRef<(() => void) | null>(null);
+  const [ar, setAr] = useState<'off' | 'starting' | 'on' | 'error'>('off');
+  const [arFov, setArFov] = useState(readArFov);
+  const [arHint, setArHint] = useState(autoAr);
   const [offsetMin, setOffsetMin] = useState(0);
   const [now, setNow] = useState(() => new Date());
   const time = useMemo(() => new Date(now.getTime() + offsetMin * 60_000), [now, offsetMin]);
@@ -115,6 +126,18 @@ export default function SkyView({ focus, at }: { focus: string | null; at: numbe
     e.labels = labels;
     e.invalidate();
   }, [labels]);
+
+  // Gesichtsfeld des gewählten Fernglases bzw. Teleskops als Kreis
+  const optics = settings.optics;
+  useEffect(() => {
+    const e = engineRef.current;
+    if (!e) return;
+    const inst = optics.instruments.find((i) => i.id === optics.active?.instrument);
+    const ep = optics.eyepieces.find((x) => x.id === optics.active?.eyepiece) ?? null;
+    const stats = inst ? opticsStats(inst, ep) : null;
+    e.fovCircles = optics.showFov && inst && stats ? [{ deg: stats.trueFov, label: opticsLabel(inst, ep, stats) }] : [];
+    e.invalidate();
+  }, [optics]);
 
   // Uhr weiterlaufen lassen (die Sterne wandern etwa 0,25° pro Minute)
   useEffect(() => {
@@ -190,45 +213,120 @@ export default function SkyView({ focus, at }: { focus: string | null; at: numbe
     setSelected(null);
   }, []);
 
-  async function toggleGyro() {
+  function endGyro() {
+    stopGyro.current?.();
+    stopGyro.current = null;
+    engineRef.current?.setGyro(null);
+    setGyro('off');
+  }
+
+  /** Lagesensor starten; liefert true, sobald Daten kommen */
+  async function beginGyro(): Promise<boolean> {
     const e = engineRef.current;
-    if (!e) return;
-    if (gyro === 'on' || gyro === 'starting') {
-      stopGyro.current?.();
-      stopGyro.current = null;
-      e.setGyro(null);
-      setGyro('off');
-      return;
-    }
+    if (!e) return false;
     const res = await requestOrientationPermission();
     if (res !== 'granted') {
       setGyro(res === 'unsupported' ? 'unsupported' : 'denied');
-      return;
+      return false;
     }
     setGyro('starting');
-    let got = false;
-    stopGyro.current = startOrientation((b) => {
-      if (!got) {
-        got = true;
-        setGyro('on');
-      }
-      e.setGyro(b);
+    return new Promise((resolve) => {
+      let got = false;
+      stopGyro.current = startOrientation((b) => {
+        if (!got) {
+          got = true;
+          setGyro('on');
+          resolve(true);
+        }
+        e.setGyro(b);
+      });
+      // Desktop-Browser melden das Event, liefern aber keine Daten
+      window.setTimeout(() => {
+        if (!got) {
+          stopGyro.current?.();
+          stopGyro.current = null;
+          setGyro('unsupported');
+          resolve(false);
+        }
+      }, 1500);
     });
-    // Desktop-Browser melden das Event, liefern aber keine Daten
-    window.setTimeout(() => {
-      if (!got) {
-        stopGyro.current?.();
-        stopGyro.current = null;
-        setGyro('unsupported');
-      }
-    }, 1500);
   }
 
+  async function toggleGyro() {
+    if (gyro === 'on' || gyro === 'starting') {
+      if (ar !== 'off') endAr();
+      endGyro();
+      return;
+    }
+    await beginGyro();
+  }
+
+  // ---- AR: Kamerabild hinter der Karte
+  const prevFov = useRef(100);
+  function endAr() {
+    stopCamera.current?.();
+    stopCamera.current = null;
+    const e = engineRef.current;
+    if (e) {
+      e.ar = false;
+      e.fovLock = false;
+      e.setFov(prevFov.current);
+    }
+    setAr('off');
+  }
+
+  async function toggleAr() {
+    setArHint(false);
+    if (ar === 'on' || ar === 'starting') {
+      endAr();
+      endGyro();
+      return;
+    }
+    setAr('starting');
+    const gyroOk = gyro === 'on' || (await beginGyro());
+    if (!gyroOk) {
+      setAr('off');
+      return;
+    }
+    try {
+      stopCamera.current = await startCamera(videoRef.current!);
+      const e = engineRef.current!;
+      prevFov.current = e.getView().fov;
+      e.ar = true;
+      e.fovLock = true;
+      setAr('on');
+    } catch {
+      setAr('error');
+    }
+  }
+
+  // Bildwinkel an Kamera und Bildschirm anpassen
+  useEffect(() => {
+    if (ar !== 'on') return;
+    const v = videoRef.current;
+    if (!v) return;
+    const apply = () => {
+      const fov = cameraFov(v, v.clientWidth, v.clientHeight, arFov);
+      if (fov) engineRef.current?.setFov(fov);
+    };
+    apply();
+    v.addEventListener('loadedmetadata', apply);
+    window.addEventListener('resize', apply);
+    return () => {
+      v.removeEventListener('loadedmetadata', apply);
+      window.removeEventListener('resize', apply);
+    };
+  }, [ar, arFov]);
+
+  useEffect(() => () => stopCamera.current?.(), []);
+
   const live = offsetMin === 0;
-  const gyroMsg = gyro === 'denied' ? t('sky.gyroDenied') : gyro === 'unsupported' ? t('sky.gyroUnsupported') : null;
+  const gyroMsg =
+    ar === 'error' ? t('ar.error') : gyro === 'denied' ? t('sky.gyroDenied') : gyro === 'unsupported' ? t('sky.gyroUnsupported') : null;
 
   return (
-    <div className="sky">
+    <div className={`sky ${ar === 'on' ? 'is-ar' : ''}`}>
+      <video ref={videoRef} className="sky-video" playsInline muted autoPlay hidden={ar !== 'on'} />
       <canvas ref={canvasRef} className="sky-canvas" />
 
       <div className="sky-top">
@@ -239,7 +337,7 @@ export default function SkyView({ focus, at }: { focus: string | null; at: numbe
             {Math.abs(offsetMin) > 720 ? fmtDateTime(time, place.tz, lang) : fmtTime(time, place.tz, lang)}
           </span>
         </button>
-        <div className="sky-zoom">
+        <div className="sky-zoom" hidden={ar === 'on'}>
           <button className="icon-btn" onClick={() => engineRef.current?.zoom(1 / 1.35)} aria-label={t('sky.zoomIn')}>
             <Plus size={18} />
           </button>
@@ -255,15 +353,57 @@ export default function SkyView({ focus, at }: { focus: string | null; at: numbe
       </div>
 
       {gyroMsg && (
-        <div className="sky-toast" role="status" onClick={() => setGyro('off')}>
+        <div
+          className="sky-toast"
+          role="status"
+          onClick={() => {
+            setGyro('off');
+            if (ar === 'error') setAr('off');
+          }}
+        >
           {gyroMsg}
         </div>
+      )}
+
+      {ar === 'on' && (
+        <div className="ar-panel">
+          <span>{t('ar.hint')}</span>
+          <label>
+            {t('ar.fov')}
+            <input
+              type="range"
+              min={45}
+              max={85}
+              step={1}
+              value={arFov}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setArFov(v);
+                writeArFov(v);
+              }}
+            />
+          </label>
+        </div>
+      )}
+
+      {arHint && ar === 'off' && (
+        <button className="ar-start card" onClick={toggleAr}>
+          <Camera size={22} />
+          <span>
+            <strong>{t('ar.start')}</strong>
+            <small className="muted">{t('ar.startText')}</small>
+          </span>
+        </button>
       )}
 
       <nav className="sky-tools" aria-label={t('sky.tools')}>
         <button className={`tool ${gyro === 'on' ? 'is-on' : ''}`} onClick={toggleGyro} aria-pressed={gyro === 'on'}>
           <Compass size={20} />
           <span>{gyro === 'on' ? t('sky.gyroOn') : t('sky.gyro')}</span>
+        </button>
+        <button className={`tool ${ar === 'on' ? 'is-on' : ''}`} onClick={toggleAr} aria-pressed={ar === 'on'}>
+          <Camera size={20} />
+          <span>{t('ar.tool')}</span>
         </button>
         <button className={`tool ${panel === 'search' ? 'is-on' : ''}`} onClick={() => setPanel(panel === 'search' ? null : 'search')}>
           <Search size={20} />
@@ -291,7 +431,20 @@ export default function SkyView({ focus, at }: { focus: string | null; at: numbe
                 </label>
               </li>
             ))}
+            <li>
+              <label className="toggle">
+                <span>
+                  {t('layer.fov')}
+                  <small className="muted"> · {t('layer.fovHint')}</small>
+                </span>
+                <input type="checkbox" checked={optics.showFov} onChange={(e) => update({ optics: { ...optics, showFov: e.target.checked } })} />
+                <span className="switch" aria-hidden="true" />
+              </label>
+            </li>
           </ul>
+          <a className="link" href="#/beobachten/okular">
+            {t('layer.fovSetup')} <ArrowRight size={15} />
+          </a>
         </Sheet>
       )}
 

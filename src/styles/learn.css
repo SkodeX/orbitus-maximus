@@ -847,3 +847,397 @@
   color: var(--good);
   font-weight: 600;
 }
+
+/* ---------- Lernpfade ---------- */
+
+.path-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+}
+
+.path-card {
+  display: flex;
+  gap: 14px;
+  color: var(--text);
+}
+
+.path-card > span:last-child {
+  display: grid;
+  gap: 6px;
+}
+
+.path-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.path-step {
+  display: grid;
+  gap: 10px;
+}
+
+.path-step.is-current {
+  border-color: rgba(138, 164, 255, 0.5);
+}
+
+.path-step.is-done {
+  border-color: rgba(107, 227, 164, 0.35);
+}
+
+.path-step-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.path-step-head h3 {
+  font-size: 1.15rem !important;
+}
+
+.path-num {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(138, 164, 255, 0.15);
+  color: var(--accent);
+  font-weight: 700;
+  flex: none;
+}
+
+.path-step.is-done .path-num {
+  background: var(--good);
+  color: #05060f;
+}
+
+.path-tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.path-tasks li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.path-task-text {
+  display: grid;
+  gap: 2px;
+  padding-top: 5px;
+}
+
+.path-where {
+  color: var(--faint);
+}
+
+.path-finish {
+  justify-self: start;
+}
+
+/* ---------- Sternbild-Trainer und Mythen ---------- */
+
+.con-chart {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: 62vh;
+  border-radius: 14px;
+  touch-action: manipulation;
+}
+
+.trainer-bar {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.trainer-bar .filter-chips {
+  margin-top: 8px;
+}
+
+.trainer-card {
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+}
+
+.trainer-q {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.trainer-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.trainer-options .btn {
+  border-radius: 14px;
+}
+
+.trainer-options .btn.is-right {
+  background: rgba(107, 227, 164, 0.2);
+  border-color: var(--good);
+}
+
+.trainer-options .btn.is-wrong {
+  background: rgba(255, 138, 128, 0.18);
+  border-color: var(--bad);
+}
+
+.trainer-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.trainer-result.is-right {
+  color: var(--good);
+}
+
+.trainer-result.is-wrong {
+  color: var(--bad);
+}
+
+.trainer .btn-row {
+  justify-content: flex-start;
+}
+
+.trainer-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.myth-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+}
+
+.myth-card {
+  color: var(--text);
+}
+
+.myth-card h3 {
+  font-size: 1.15rem !important;
+  margin-bottom: 4px;
+}
+
+.myth-chart {
+  max-width: 520px;
+  margin-bottom: 16px;
+}
+
+.myth-stories {
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+}
+
+.myth-actions {
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+/* ---------- Galerie ---------- */
+
+.gallery-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(min(46%, 220px), 1fr));
+}
+
+.gallery-item {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--card-strong);
+  color: #fff;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s var(--ease);
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+.gallery-item > span {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: grid;
+  gap: 2px;
+  padding: 28px 10px 10px;
+  background: linear-gradient(to top, rgba(5, 6, 15, 0.92), rgba(5, 6, 15, 0));
+  font-size: 0.85rem;
+}
+
+.gallery-item small {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.72rem;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
+}
+
+.lightbox-bg {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(2, 3, 9, 0.88);
+}
+
+.lightbox-card {
+  position: relative;
+  margin: 0;
+  width: min(100%, 980px);
+  max-height: 100%;
+  overflow-y: auto;
+  border-radius: 20px;
+  background: #0b0d20;
+  border: 1px solid var(--line-strong);
+}
+
+.lightbox-img {
+  position: relative;
+  background: #000;
+}
+
+.lightbox-img img {
+  display: block;
+  width: 100%;
+  max-height: 64vh;
+  object-fit: contain;
+}
+
+.lightbox-close,
+.lightbox-prev,
+.lightbox-next {
+  position: absolute;
+  background: rgba(5, 6, 15, 0.7);
+}
+
+.lightbox-close {
+  top: 10px;
+  right: 10px;
+}
+
+.lightbox-prev,
+.lightbox-next {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox-prev {
+  left: 10px;
+}
+
+.lightbox-next {
+  right: 10px;
+}
+
+.lightbox-card figcaption {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px 20px;
+}
+
+.lightbox-card .btn-row {
+  justify-content: flex-start;
+}
+
+/* ---------- Exoplaneten ---------- */
+
+.exo-chart-card {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.exo-bars {
+  display: flex;
+  align-items: end;
+  gap: 2px;
+  height: 110px;
+  border-bottom: 1px solid var(--line);
+}
+
+.exo-bars .diary-bar {
+  flex: 1;
+}
+
+.exo-bars .diary-bar span {
+  width: 100%;
+}
+
+.exo-axis {
+  display: flex;
+  justify-content: space-between;
+}
+
+.exo-list {
+  list-style: none;
+  margin: 14px 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.exo-item {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+.exo-detail {
+  display: grid;
+  gap: 8px;
+}
+
+.exo-compare {
+  width: 100%;
+  max-width: 320px;
+}
+
+.exo-label {
+  fill: var(--muted);
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+.exo-star {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: 0;
+}
