@@ -59,6 +59,13 @@ Umgesetzt im Oktober 2026 (abgehakt). Was davon noch fehlt, steht jeweils dahint
 - [x] **Teilen** – einzelne Beobachtung als Link oder Bild teilen – *als Bild umgesetzt; ein Link zum Teilen braucht das Supabase-Backend*
 - [x] **Statistik** – Beobachtungen pro Monat, meistgesehene Objekte, beste Nächte
 
+## Zukünftige Ideen
+
+- [ ] **Himmel an einem beliebigen Datum** – Datum und Uhrzeit frei wählen (z. B. Geburtstag, Mondlandung 1969, Silvester 2099) und die Sternkarte so zeigen, wie der Himmel damals bzw. dann aussah.
+  - *Machbarkeit: gut.* Die Sternkarte kann die Zeit schon um ±12 Stunden verschieben, und Astronomy Engine rechnet Sonne, Mond und Planeten für jedes Datum (sehr genau etwa 1700–2200). Nötig sind ein Datumswähler und Sprungziele („Mondlandung“, „mein Geburtstag“).
+  - *Tagsüber:* Der Taghimmel wird schon dargestellt. Dazu kommt ein Schalter „Tageslicht ausblenden“, damit man die Sterne hinter der Sonne sieht, z. B. in welchem Sternbild die Sonne an deinem Geburtstag stand.
+  - *Grenzen:* ISS und Satelliten gibt es nur für die Gegenwart. Für Jahrtausende zurück verschieben sich die Sterne durch Präzession und Eigenbewegung, dafür bräuchte es eine Sonderbehandlung.
+
 ## Vergleichsseiten zur Inspiration
 
 - **Sternkarte:** [Stellarium Web](https://stellarium-web.org), [Stellarium](https://stellarium.org) (Desktop), SkySafari, Star Walk 2, Sky Guide (Apps)
