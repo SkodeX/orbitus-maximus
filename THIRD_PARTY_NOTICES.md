@@ -20,6 +20,8 @@ Zur Laufzeit abgerufen (nicht im Repository enthalten): Open-Meteo (CC BY 4.0), 
 | [three.js](https://threejs.org) | MIT |
 | [satellite.js](https://github.com/shashwatak/satellite-js) | MIT |
 | [React](https://react.dev) | MIT |
+| [supabase-js](https://github.com/supabase/supabase-js) (mit auth-js, postgrest-js, storage-js, functions-js, realtime-js, phoenix) | MIT |
+| [web-push](https://github.com/web-push-libs/web-push) – nur in der Edge Function auf dem Server | MPL-2.0 |
 | [d3-geo](https://github.com/d3/d3-geo), [topojson-client](https://github.com/topojson/topojson-client) | ISC |
 | [Lucide](https://lucide.dev) | ISC |
 | [Inter](https://rsms.me/inter/), [Space Grotesk](https://github.com/floriankarsten/space-grotesk) über Fontsource | SIL Open Font License 1.1 |

@@ -31,7 +31,13 @@ Auf dem iPhone: Seite in Safari öffnen → „Teilen“ → „Zum Home-Bildsch
 - **Lexikon** mit Artikeln zu Sonnensystem, Sternen & Galaxien, Himmelsbeobachtung und Raumfahrt – verknüpft mit Sternkarte und 3D-Sonnensystem
 - **Zeitstrahl** der Raumfahrt von Sputnik bis heute, filterbar nach Themen
 - **Größen & Distanzen:** Skalenreise vom Menschen bis zum beobachtbaren Universum, Reisezeit-Rechner, Gewicht und Alter auf anderen Welten
-- **Quiz** mit vier Themen, Erklärungen und Abzeichen; der Fortschritt liegt vorerst lokal im Browser
+- **Quiz** mit vier Themen, Erklärungen und Abzeichen
+
+**Phase 5 „Konto & Beobachten“**
+
+- **Konto** ohne Passwort: Anmeldung mit 6-stelligem Code per E-Mail; Ort, Sprache, Sternkarten-Ebenen und Lernfortschritt werden zwischen Geräten synchronisiert
+- **Beobachtungstagebuch** mit Zeit, Ort, Objekten, Bedingungen, Ausrüstung, Notizen und Fotos – funktioniert offline und synchronisiert sich nach dem Anmelden; direkt aus Sternkarte und Heute-Seite eintragen
+- **Benachrichtigungen** (Web-Push): ISS-Überflüge, Polarlicht-Alarm, klare Nacht und Meteorschauer-Maxima für deinen Ort – auf dem iPhone nur in der installierten App
 
 ## Entwickeln
 
@@ -45,6 +51,18 @@ npm run icons      # App-Icons aus public/logo.svg erzeugen
 node scripts/build-textures.mjs <Ordner>   # NASA-Texturen verkleinern (nach public/textures/)
 ```
 
+### Backend (Supabase)
+
+Konto, Sync und Benachrichtigungen laufen über ein eigenes Supabase-Projekt. Ohne Eintrag in `src/lib/cloud/config.ts` läuft die App komplett lokal weiter.
+
+1. Migrationen aus `supabase/migrations/` der Reihe nach ausführen (Tabellen, Zugriffsregeln, Foto-Speicher, Cron-Job).
+2. Im Vault drei Geheimnisse anlegen: `orbitus_vapid_private` (privater VAPID-Schlüssel), `orbitus_cron_key` (beliebige Zufallsfolge) und `orbitus_project_url` (Projekt-URL).
+3. Edge Function `supabase/functions/push-alerts` mit `verify_jwt = false` veröffentlichen.
+4. Projekt-URL und Anon-Key in `src/lib/cloud/config.ts` eintragen.
+5. In den E-Mail-Vorlagen „Magic Link“ und „Confirm signup“ den Code `{{ .Token }}` einbauen, damit die Mail den 6-stelligen Code enthält.
+
+Geheime Schlüssel (privater VAPID-Schlüssel, Service-Role-Key, Cron-Key) gehören nie ins Repo.
+
 GPS und Lagesensor funktionieren auf dem Handy nur über HTTPS, also in der Live-Version. Jeder Push auf `main` baut die App per GitHub Actions und veröffentlicht sie auf GitHub Pages (`.github/workflows/deploy.yml`).
 
 ## Aufbau
@@ -54,10 +72,12 @@ GPS und Lagesensor funktionieren auf dem Handy nur über HTTPS, also in der Live
 | `src/lib/astro.ts` | Astronomie: Nacht, Dämmerung, Planeten- und Mondberichte (astronomy-engine) |
 | `src/sky/engine.ts` | Canvas-Renderer der Sternkarte (stereografische Projektion) |
 | `src/sky/orientation.ts` | Lagesensor → Blickrichtung |
-| `src/views/` | Seiten: Heute, Himmel, Planeten (3D), Live, Wissen, Ort & mehr, Willkommen |
+| `src/views/` | Seiten: Heute, Himmel, Planeten (3D), Live, Wissen, Tagebuch, Ort & mehr, Willkommen |
 | `src/solar/` | 3D-Sonnensystem (three.js) und Daten der Himmelskörper |
 | `src/learn/` | Lexikon, Zeitstrahl, Quiz, Abzeichen und Lernfortschritt |
 | `src/lib/live/` | Live-Daten: ISS-Bahn, Starts, News, Weltraumwetter |
+| `src/lib/cloud/` | Konto, Sync, Tagebuch und Push (Supabase) |
+| `supabase/` | Datenbank-Migrationen und Edge Function für Benachrichtigungen |
 | `src/i18n/` | Texte Deutsch/Englisch |
 | `src/data/` | Erzeugte Himmelsdaten |
 | `scripts/` | Datenaufbereitung |
@@ -78,3 +98,4 @@ Lizenzen und Hinweise im Detail: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md
 - [Natural Earth / world-atlas](https://github.com/topojson/world-atlas) – Landmassen der Weltkarte
 - [NASA 3D Resources](https://github.com/nasa/NASA-3D-Resources) – Oberflächenkarten von Erde, Venus (Magellan-Radar), Mars, Jupiter, Saturn, Neptun, Pluto, Io, Europa und Titan (gemeinfrei)
 - [three.js](https://threejs.org) – 3D-Darstellung (MIT)
+- [Supabase](https://supabase.com) – Konto, Datenbank, Foto-Speicher und Edge Functions; [web-push](https://github.com/web-push-libs/web-push) – Versand der Benachrichtigungen (MPL-2.0)
