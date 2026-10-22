@@ -1,0 +1,239 @@
+/* ---------- 3D-Sonnensystem ---------- */
+
+.app--solar .main {
+  padding: 0;
+}
+
+.app--solar .topbar {
+  background: linear-gradient(to bottom, rgba(2, 3, 9, 0.75), rgba(2, 3, 9, 0));
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.solar {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(120% 80% at 50% 40%, #070a1c, #010208 70%);
+  overflow: hidden;
+}
+
+.solar--failed {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.solar-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.solar-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.solar-labels {
+  position: absolute !important;
+  inset: 0;
+  pointer-events: none;
+}
+
+.solar-label {
+  pointer-events: auto;
+  margin-bottom: 4px;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(5, 6, 15, 0.45);
+  color: rgba(225, 232, 255, 0.9);
+  font: 600 11.5px var(--font-body);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.solar-label:hover {
+  background: rgba(138, 164, 255, 0.3);
+  color: #fff;
+}
+
+.solar-label--moon {
+  font-size: 10.5px;
+  color: rgba(190, 200, 235, 0.85);
+}
+
+.solar-label--star {
+  color: #ffd59a;
+}
+
+.solar-label.is-selected {
+  background: rgba(138, 164, 255, 0.85);
+  color: #070816;
+}
+
+.solar-hint {
+  position: absolute;
+  top: calc(var(--topbar-h) + var(--safe-top) + 54px);
+  left: 16px;
+  right: 16px;
+  width: fit-content;
+  margin-inline: auto;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(5, 6, 15, 0.5);
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-align: center;
+  pointer-events: none;
+  animation: fade-out 1s 7s forwards;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.solar-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 86px);
+  display: flex;
+  gap: 6px;
+  padding: 4px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  justify-content: safe center;
+}
+
+.solar-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.solar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 5px 11px 5px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(10, 12, 28, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.solar-chip.is-on {
+  color: var(--text);
+  border-color: rgba(138, 164, 255, 0.6);
+  background: rgba(138, 164, 255, 0.2);
+}
+
+@media (min-width: 900px) {
+  .solar-strip {
+    bottom: 100px;
+  }
+  .solar .sheet {
+    top: calc(var(--topbar-h) + 16px);
+    bottom: auto;
+  }
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.option {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.option.is-on {
+  border-color: rgba(138, 164, 255, 0.6);
+  background: rgba(138, 164, 255, 0.16);
+  color: var(--text);
+}
+
+.mode-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.mode {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+
+.mode.is-on {
+  border-color: rgba(138, 164, 255, 0.6);
+  background: rgba(138, 164, 255, 0.14);
+}
+
+.fun-fact {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 179, 92, 0.08);
+  border: 1px solid rgba(255, 179, 92, 0.22);
+  font-size: 0.92rem;
+}
+
+.fun-fact strong {
+  display: block;
+  color: var(--warm);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.moon-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.moon-chips .chip {
+  cursor: pointer;
+}
+
+.block {
+  display: block;
+}
+
+.p-pluto {
+  --glow: rgba(220, 195, 165, 0.25);
+  --surface:
+    radial-gradient(ellipse 30% 26% at 55% 60%, #f3e9dc 0 55%, transparent 62%),
+    radial-gradient(ellipse 30% 14% at 30% 45%, rgba(110, 60, 40, 0.6), transparent 70%),
+    linear-gradient(150deg, #e2cfb4, #b99a7a 60%, #7d5f48);
+}

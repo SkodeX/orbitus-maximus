@@ -1,0 +1,230 @@
+.sky {
+  position: fixed;
+  inset: 0;
+  background: #03040b;
+  overflow: hidden;
+}
+
+.sky-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sky-canvas:active {
+  cursor: grabbing;
+}
+
+.sky-top {
+  position: absolute;
+  top: calc(var(--topbar-h) + var(--safe-top) + 6px);
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.sky-top > * {
+  pointer-events: auto;
+}
+
+.sky-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(10, 12, 28, 0.7);
+  border: 1px solid var(--line-strong);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 0.86rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sky-chip svg {
+  color: var(--good);
+}
+
+.sky-chip.is-shifted svg {
+  color: var(--warm);
+}
+
+.sky-zoom {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sky-zoom .icon-btn {
+  background: rgba(10, 12, 28, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.sky-readout {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 84px);
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(5, 6, 15, 0.55);
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.sky-readout span {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.sky-readout em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.sky-toast {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: calc(var(--topbar-h) + var(--safe-top) + 60px);
+  margin-inline: auto;
+  max-width: 440px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(40, 18, 30, 0.92);
+  border: 1px solid rgba(255, 138, 128, 0.4);
+  color: #ffd2cd;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.sky-tools {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 14px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 20px;
+  background: rgba(10, 12, 28, 0.78);
+  border: 1px solid var(--line-strong);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.9);
+}
+
+.tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 72px;
+  padding: 8px 10px 6px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tool:hover {
+  color: var(--text);
+}
+
+.tool.is-on {
+  background: rgba(138, 164, 255, 0.16);
+  color: var(--text);
+}
+
+.tool.is-on svg {
+  color: var(--accent);
+}
+
+@media (max-width: 380px) {
+  .tool {
+    min-width: 62px;
+    padding-inline: 6px;
+  }
+}
+
+/* Sheets in der Sternkarte schweben über der Werkzeugleiste */
+.sky .sheet {
+  bottom: calc(var(--nav-h) + var(--safe-bottom));
+}
+
+@media (min-width: 900px) {
+  .sky .sheet {
+    top: calc(var(--topbar-h) + 16px);
+    bottom: auto;
+    right: 76px;
+  }
+  .sky-tools {
+    bottom: 24px;
+  }
+  .sky-readout {
+    bottom: 96px;
+  }
+}
+
+/* ---------- Info-Panel ---------- */
+
+.info {
+  display: grid;
+  gap: 10px;
+}
+
+.info-type {
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.info-pos {
+  font-weight: 600;
+}
+
+.info-pos.is-up {
+  color: var(--good);
+}
+
+.info-pos.is-down {
+  color: var(--faint);
+}
+
+.time-now {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.range {
+  width: 100%;
+  accent-color: var(--accent);
+  height: 32px;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--faint);
+  margin-bottom: 16px;
+}

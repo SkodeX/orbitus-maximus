@@ -1,0 +1,155 @@
+/* Mit CSS gemalte Himmelskörper */
+
+.planet-box {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+
+.planet-art {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--size);
+  height: var(--size);
+  flex: none;
+  isolation: isolate;
+}
+
+.sphere {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 0 calc(var(--size) * 0.45) calc(var(--size) * -0.05) var(--glow, transparent);
+}
+
+.sphere::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.28), transparent 40%),
+    radial-gradient(circle at 70% 72%, transparent 32%, rgba(2, 3, 12, 0.55) 62%, rgba(2, 3, 12, 0.88) 86%);
+}
+
+.ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 230%;
+  height: 64%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-16deg);
+  background: radial-gradient(
+    closest-side,
+    transparent 0 55%,
+    rgba(200, 180, 140, 0.35) 56% 65%,
+    rgba(232, 214, 174, 0.92) 66% 83%,
+    rgba(40, 30, 20, 0.2) 84% 86%,
+    rgba(214, 196, 156, 0.8) 87% 97%,
+    transparent 99%
+  );
+  pointer-events: none;
+}
+
+.ring--back {
+  z-index: -1;
+}
+
+.ring--front {
+  z-index: 1;
+  clip-path: inset(50% 0 0 0);
+}
+
+.p-sun {
+  --glow: rgba(255, 170, 80, 0.7);
+  --surface: radial-gradient(circle at 45% 45%, #fff6d5, #ffd166 35%, #ff9a3c 70%, #ff6a2c);
+}
+
+.p-moon {
+  --glow: rgba(240, 235, 220, 0.25);
+  --surface:
+    radial-gradient(circle at 35% 40%, #b9b3a6 0 9%, transparent 10%),
+    radial-gradient(circle at 62% 30%, #c4beb1 0 6%, transparent 7%),
+    radial-gradient(circle at 56% 64%, #b5ae9f 0 11%, transparent 12%),
+    linear-gradient(140deg, #f2eee4, #d6d0c2 60%, #b8b1a2);
+}
+
+.p-mercury {
+  --glow: rgba(180, 175, 170, 0.25);
+  --surface:
+    radial-gradient(circle at 62% 38%, #6f6a66 0 5%, transparent 6%),
+    radial-gradient(circle at 38% 62%, #77726d 0 7%, transparent 8%),
+    radial-gradient(circle at 70% 70%, #85807a 0 4%, transparent 5%),
+    radial-gradient(circle at 28% 34%, #8d8883 0 3.5%, transparent 4.5%),
+    linear-gradient(135deg, #b4aea8, #8c8680 55%, #6a6560);
+}
+
+.p-venus {
+  --glow: rgba(240, 190, 110, 0.35);
+  --surface:
+    repeating-linear-gradient(165deg, rgba(255, 255, 255, 0.07) 0 6%, transparent 6% 13%, rgba(150, 90, 30, 0.08) 13% 18%, transparent 18% 24%),
+    radial-gradient(ellipse at 40% 35%, #f6deae, transparent 60%),
+    linear-gradient(150deg, #edcf95, #d6a15e 55%, #b97a3f);
+}
+
+.p-earth {
+  --glow: rgba(90, 160, 255, 0.35);
+  --surface:
+    radial-gradient(ellipse 30% 12% at 40% 30%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(ellipse 22% 30% at 34% 45%, #3f8f4a 0 55%, transparent 58%),
+    radial-gradient(ellipse 18% 24% at 66% 40%, #5a9a4a 0 55%, transparent 58%),
+    linear-gradient(160deg, #3d8bf0, #1d4fb8 60%, #133a8a);
+}
+
+.p-mars {
+  --glow: rgba(255, 110, 60, 0.35);
+  --surface:
+    radial-gradient(ellipse 40% 8% at 50% 4%, #f3e9e2 0 55%, transparent 62%),
+    radial-gradient(ellipse 30% 12% at 40% 55%, rgba(90, 30, 10, 0.55), transparent 70%),
+    radial-gradient(ellipse 20% 10% at 68% 38%, rgba(90, 30, 10, 0.45), transparent 70%),
+    linear-gradient(150deg, #e2733f, #c1440e 55%, #8a2c08);
+}
+
+.p-jupiter {
+  --glow: rgba(230, 180, 120, 0.3);
+  --surface:
+    radial-gradient(ellipse 12% 7% at 64% 66%, #c4553a 0 50%, #d98a60 60%, transparent 72%),
+    linear-gradient(
+      180deg,
+      #cfae8a 0%,
+      #a5754f 12%,
+      #e9d6b6 20%,
+      #b7835a 29%,
+      #f0e2c8 38%,
+      #c2906a 46%,
+      #ead8b8 53%,
+      #a8714a 61%,
+      #e4cba6 69%,
+      #9b6a46 77%,
+      #d9bf9a 86%,
+      #b28a66 100%
+    );
+}
+
+.p-saturn {
+  --glow: rgba(235, 210, 150, 0.25);
+  --surface: linear-gradient(180deg, #e9d5a4 0%, #d8bb82 14%, #f0e0b8 26%, #cfae76 38%, #ead6a8 52%, #c9a670 64%, #e6cf9e 78%, #bf9c66 100%);
+}
+
+.p-uranus {
+  --glow: rgba(140, 230, 235, 0.3);
+  --surface: radial-gradient(circle at 45% 40%, #c9f3f2, transparent 60%), linear-gradient(170deg, #a6e6ea, #79cdd6 50%, #4fa8b8);
+}
+
+.p-neptune {
+  --glow: rgba(90, 130, 255, 0.4);
+  --surface:
+    radial-gradient(ellipse 14% 7% at 60% 58%, #1b2a7a 0 55%, transparent 70%),
+    radial-gradient(ellipse 18% 2.5% at 64% 50%, rgba(255, 255, 255, 0.7), transparent 75%),
+    radial-gradient(ellipse 22% 2.5% at 40% 32%, rgba(255, 255, 255, 0.45), transparent 75%),
+    linear-gradient(165deg, #5b84f0, #3157d1 50%, #1d3696);
+}
