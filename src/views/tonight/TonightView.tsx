@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Binoculars, Cloud, Eye, MapPin, Sparkles, Sunrise, Sunset, Telescope } from 'lucide-react';
+import { ArrowRight, Binoculars, BookMarked, Cloud, Eye, MapPin, Sparkles, Sunrise, Sunset, Telescope } from 'lucide-react';
 import { useSettings } from '../../state/settings';
 import { useI18n, type MsgKey } from '../../i18n';
 import { useNow } from '../../lib/useNow';
@@ -201,6 +201,9 @@ function Hero({ report, now }: { report: TonightReport; now: Date }) {
       <div className="hero-actions">
         <a className="btn btn-primary" href="#/sky">
           <Sparkles size={18} /> {t('tonight.openSky')}
+        </a>
+        <a className="btn btn-ghost" href="#/tagebuch/neu">
+          <BookMarked size={18} /> {t('diary.logObservation')}
         </a>
         <a className="btn btn-ghost" href="#/settings">
           <MapPin size={18} /> {t('tonight.changePlace')}

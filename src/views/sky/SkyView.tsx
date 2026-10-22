@@ -363,6 +363,9 @@ function IssInfo({ info }: { info: IssInfoData | null }) {
         <dt>{t('iss.onBoard')}</dt>
         <dd>{info.lit ? t('iss.lit') : t('iss.shadow')}</dd>
       </dl>
+      <a className="link" href={`#/tagebuch/neu?obj=ISS&t=${Date.now()}`}>
+        {t('diary.addFromSky')} <ArrowRight size={15} />
+      </a>
       <a className="link" href="#/live">
         {t('iss.toTracker')} <ArrowRight size={15} />
       </a>

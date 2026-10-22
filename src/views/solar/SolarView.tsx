@@ -61,7 +61,9 @@ export default function SolarView({ focus }: { focus: string | null }) {
     // Nur einmal anlegen; Namen und Tempo werden unten nachgeführt
   }, []);
 
-  useEffect(() => engineRef.current?.setNames(names), [names]);
+  useEffect(() => {
+    engineRef.current?.setNames(names);
+  }, [names]);
 
   // Ziel aus der URL, z. B. aus dem Lexikon
   useEffect(() => {

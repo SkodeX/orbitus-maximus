@@ -1,5 +1,6 @@
 import * as A from 'astronomy-engine';
 import type { ReactNode } from 'react';
+import { BookMarked } from 'lucide-react';
 import { BODIES, AU_KM, constellationAt, observerOf, positionOf, type RiseSetInfo } from '../../lib/astro';
 import { SHOWERS } from '../../lib/meteors';
 import { compassLong, fmtDec, fmtDeg, fmtEventTime, fmtInt, fmtMag, fmtNum, fmtRA } from '../../lib/format';
@@ -205,6 +206,9 @@ export function InfoPanel({ obj, data, time }: { obj: SkyObject; data: SkyData; 
           </Row>
         ))}
       </dl>
+      <a className="link" href={`#/tagebuch/neu?obj=${encodeURIComponent(objectName(obj, data, i18n))}&t=${time.getTime()}`}>
+        <BookMarked size={15} /> {t('diary.addFromSky')}
+      </a>
       <details className="details">
         <summary>{t('details.summary')}</summary>
         <dl className="detail-grid">

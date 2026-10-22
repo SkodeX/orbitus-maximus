@@ -20,7 +20,13 @@ export interface Settings {
   recentPlaces: Place[];
   redMode: boolean;
   layers: SkyLayers;
+  /** Zeitpunkt der letzten Änderung (für den Abgleich mit dem Konto) */
+  updatedAt: number;
 }
+
+/** Diese Einstellungen werden mit dem Konto synchronisiert (der Rotlicht-Modus bleibt pro Gerät) */
+export const SYNCED_KEYS = ['lang', 'place', 'recentPlaces', 'layers'] as const;
+export type SyncedSettings = Pick<Settings, (typeof SYNCED_KEYS)[number] | 'updatedAt'>;
 
 const KEY = 'orbitus.settings.v1';
 
@@ -37,7 +43,7 @@ export const DEFAULT_LAYERS: SkyLayers = {
 
 function load(): Settings {
   const lang: Lang = navigator.language?.toLowerCase().startsWith('de') ? 'de' : 'en';
-  const base: Settings = { lang, place: null, recentPlaces: [], redMode: false, layers: DEFAULT_LAYERS };
+  const base: Settings = { lang, place: null, recentPlaces: [], redMode: false, layers: DEFAULT_LAYERS, updatedAt: 0 };
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
@@ -55,6 +61,8 @@ interface SettingsCtx {
   update: (patch: Partial<Settings>) => void;
   setPlace: (p: Place) => void;
   setLayer: (key: keyof SkyLayers, on: boolean) => void;
+  /** Stand aus dem Konto übernehmen, ohne ihn als lokale Änderung zu zählen */
+  applyRemote: (remote: Partial<SyncedSettings>) => void;
 }
 
 const Ctx = createContext<SettingsCtx | null>(null);
@@ -79,7 +87,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', settings.redMode ? '#000000' : '#05060f');
   }, [settings.lang, settings.redMode]);
 
-  const update = useCallback((patch: Partial<Settings>) => setSettings((s) => ({ ...s, ...patch })), []);
+  const update = useCallback((patch: Partial<Settings>) => setSettings((s) => ({ ...s, ...patch, updatedAt: Date.now() })), []);
 
   const setPlace = useCallback(
     (p: Place) =>
@@ -87,16 +95,23 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         ...s,
         place: p,
         recentPlaces: [p, ...s.recentPlaces.filter((r) => !samePlace(r, p))].slice(0, 6),
+        updatedAt: Date.now(),
       })),
     [],
   );
 
   const setLayer = useCallback(
-    (key: keyof SkyLayers, on: boolean) => setSettings((s) => ({ ...s, layers: { ...s.layers, [key]: on } })),
+    (key: keyof SkyLayers, on: boolean) => setSettings((s) => ({ ...s, layers: { ...s.layers, [key]: on }, updatedAt: Date.now() })),
     [],
   );
 
-  const value = useMemo(() => ({ settings, update, setPlace, setLayer }), [settings, update, setPlace, setLayer]);
+  const applyRemote = useCallback(
+    (remote: Partial<SyncedSettings>) =>
+      setSettings((s) => ({ ...s, ...remote, layers: { ...DEFAULT_LAYERS, ...remote.layers }, updatedAt: remote.updatedAt ?? s.updatedAt })),
+    [],
+  );
+
+  const value = useMemo(() => ({ settings, update, setPlace, setLayer, applyRemote }), [settings, update, setPlace, setLayer, applyRemote]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

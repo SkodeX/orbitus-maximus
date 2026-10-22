@@ -7,6 +7,8 @@ import { Starfield } from './components/Starfield';
 import { TonightView } from './views/tonight/TonightView';
 import { SettingsView } from './views/SettingsView';
 import { Onboarding } from './views/Onboarding';
+import { DiaryView } from './views/DiaryView';
+import { useCloudSync } from './lib/cloud/sync';
 
 // Die Sternkarte bringt ihren Sternkatalog mit und wird erst bei Bedarf geladen
 const SkyView = lazy(() => import('./views/sky/SkyView'));
@@ -19,6 +21,7 @@ function Shell() {
   const { settings } = useSettings();
   const { t } = useI18n();
   const route = useRoute();
+  useCloudSync();
 
   if (!settings.place) return <Onboarding />;
 
@@ -26,6 +29,8 @@ function Shell() {
     ? 'sky'
     : route.path.startsWith('/system')
       ? 'solar'
+      : route.path.startsWith('/tagebuch')
+        ? 'diary'
       : route.path.startsWith('/wissen')
         ? 'learn'
       : route.path.startsWith('/live')
@@ -41,6 +46,7 @@ function Shell() {
       <main className="main" key={view}>
         {view === 'tonight' && <TonightView />}
         {view === 'settings' && <SettingsView />}
+        {view === 'diary' && <DiaryView path={route.path} query={route.query} />}
         {view === 'solar' && (
           <Suspense fallback={<div className="loading">{t('solar.loading')}</div>}>
             <SolarView focus={route.query.get('focus')} />

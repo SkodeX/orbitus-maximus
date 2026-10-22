@@ -11,6 +11,7 @@ import './styles/planets.css';
 import './styles/live.css';
 import './styles/solar.css';
 import './styles/learn.css';
+import './styles/diary.css';
 import App from './App';
 
 registerSW({ immediate: true });

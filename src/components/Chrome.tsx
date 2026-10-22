@@ -1,8 +1,8 @@
-import { Eye, EyeOff, GraduationCap, MapPin, Moon, Orbit, Satellite, Settings2, Sparkles } from 'lucide-react';
+import { BookMarked, Eye, EyeOff, GraduationCap, MapPin, Moon, Orbit, Satellite, Settings2, Sparkles } from 'lucide-react';
 import { useSettings } from '../state/settings';
 import { useI18n } from '../i18n';
 
-export type ViewId = 'tonight' | 'sky' | 'solar' | 'live' | 'learn' | 'settings';
+export type ViewId = 'tonight' | 'sky' | 'solar' | 'live' | 'learn' | 'diary' | 'settings';
 
 const NAV: { id: ViewId; href: string; icon: typeof Moon; key: 'nav.tonight' | 'nav.sky' | 'nav.solar' | 'nav.live' | 'nav.learn' }[] = [
   { id: 'tonight', href: '#/', icon: Moon, key: 'nav.tonight' },
@@ -44,6 +44,9 @@ export function TopBar({ view }: { view: ViewId }) {
         >
           {settings.redMode ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
+        <a className={`icon-btn ${view === 'diary' ? 'is-active' : ''}`} href="#/tagebuch" aria-label={t('diary.title')} title={t('diary.title')}>
+          <BookMarked size={18} />
+        </a>
         <a className={`icon-btn ${view === 'settings' ? 'is-active' : ''}`} href="#/settings" aria-label={t('nav.settings')} title={t('nav.settings')}>
           <Settings2 size={18} />
         </a>

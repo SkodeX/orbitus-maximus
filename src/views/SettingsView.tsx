@@ -2,6 +2,8 @@ import { Check, MapPin, Share, Smartphone } from 'lucide-react';
 import { useSettings, type Lang } from '../state/settings';
 import { useI18n } from '../i18n';
 import { LocationPicker } from '../components/LocationPicker';
+import { AccountCard } from '../components/AccountCard';
+import { PushCard } from '../components/PushCard';
 import { fmtCoords } from '../lib/format';
 
 const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -19,6 +21,9 @@ export function SettingsView() {
         <p className="eyebrow">{t('settings.eyebrow')}</p>
         <h1>{t('settings.title')}</h1>
       </header>
+
+      <AccountCard />
+      <PushCard />
 
       <section className="card">
         <p className="card-kicker">{t('settings.placeKicker')}</p>
@@ -94,7 +99,7 @@ export function SettingsView() {
           <li className="is-done">{t('settings.phase2')}</li>
           <li className="is-done">{t('settings.phase3')}</li>
           <li className="is-done">{t('settings.phase4')}</li>
-          <li>{t('settings.phase5')}</li>
+          <li className="is-done">{t('settings.phase5')}</li>
         </ul>
         <h4>{t('settings.sources')}</h4>
         <ul className="sources">
